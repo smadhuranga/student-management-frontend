@@ -12,6 +12,7 @@
 
 ## ✨ Features
 
+
 *   **📋 Student Roster:** View all students in a clean, sortable table.
 *   **➕ Add New Students:** Quickly add student details through a simple form.
 *   **🔍 Smart Search:** Instantly filter the student list by name or ID.
