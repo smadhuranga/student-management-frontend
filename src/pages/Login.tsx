@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/authservice";
+import Swal from 'sweetalert2';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -11,25 +12,35 @@ const Login: React.FC = () => {
   const [error, setError] = useState("");
 
   const handleLogin = async () => {
-    if (!name || !password) {
-      setError("Please enter both username and password");
-      return;
-    }
+  if (!name || !password) {
+    setError("Please enter both username and password");
+    return;
+  }
 
-    setLoading(true);
-    setError("");
+  setLoading(true);
+  setError("");
 
-    try {
-      console.log("Payload sent to backend:", { Name: name, Password: password });
-      await loginUser({ Name: name, Password: password });
-      navigate("/dashboard");
-    } catch (err) {
-      console.error("Login failed", err);
-      setError("Invalid username or password. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    console.log("Payload sent to backend:", { Name: name, Password: password });
+    await loginUser({ Name: name, Password: password });
+
+   
+    await Swal.fire({
+      icon: 'success',
+      title: 'Login Successful!',
+      text: 'Welcome back!',
+      timer: 1500,
+      showConfirmButton: false,
+    });
+
+    navigate("/dashboard");
+  } catch (err) {
+    console.error("Login failed", err);
+    setError("Invalid username or password. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") handleLogin();

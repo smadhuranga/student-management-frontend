@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import type { Student } from "../types/Student";
+import Swal from 'sweetalert2';
 import {
   getStudents,
   deleteStudent,
@@ -49,35 +50,76 @@ const Students: React.FC = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      if (editingId) {
-        await updateStudent(editingId, formData);
-      } else {
-        await createStudent(formData);
-      }
-      setFormData({
-        firstName: "",
-        lastName: "",
-        email: "",
-        dateOfBirth: "",
-        enrollmentDate: "",
+  e.preventDefault();
+  setLoading(true);
+  try {
+    if (editingId) {
+      await updateStudent(editingId, formData);
+      await Swal.fire({
+        icon: 'success',
+        title: 'Updated!',
+        text: 'Student updated successfully.',
+        timer: 2000,
+        showConfirmButton: false,
       });
-      setEditingId(null);
-      await loadStudents();
-    } catch (error) {
-      console.error("Submit error", error);
-    } finally {
-      setLoading(false);
+    } else {
+      await createStudent(formData);
+      await Swal.fire({
+        icon: 'success',
+        title: 'Created!',
+        text: 'New student added successfully.',
+        timer: 2000,
+        showConfirmButton: false,
+      });
     }
-  };
+    setFormData({
+      firstName: "",
+      lastName: "",
+      email: "",
+      dateOfBirth: "",
+      enrollmentDate: "",
+    });
+    setEditingId(null);
+    await loadStudents();
+  } catch (error) {
+    console.error("Submit error", error);
+    await Swal.fire({
+      icon: 'error',
+      title: 'Oops...',
+      text: 'An error occurred. Please try again.',
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
+  // Convert various date formats to "YYYY-MM-DD"
+function formatDateForInput(dateString: string): string {
+  if (!dateString) return "";
+
+  const date = new Date(dateString);
+
+  // get year, month, day
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
 
   const handleEdit = (student: Student) => {
-    setFormData(student);
-    setEditingId(student.id || null);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  const formattedDOB = formatDateForInput(student.dateOfBirth);
+  const formattedEnrollment = formatDateForInput(student.enrollmentDate);
+
+  setFormData({
+    ...student,
+    dateOfBirth: formattedDOB,
+    enrollmentDate: formattedEnrollment,
+  });
+
+  setEditingId(student.id || null);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
 
   const handleDeleteClick = (id: number, firstName: string, lastName: string) => {
     setDeleteModal({
@@ -88,18 +130,30 @@ const Students: React.FC = () => {
   };
 
   const confirmDelete = async () => {
-    if (!deleteModal.studentId) return;
-    setLoading(true);
-    try {
-      await deleteStudent(deleteModal.studentId);
-      await loadStudents();
-    } catch (error) {
-      console.error("Delete error", error);
-    } finally {
-      setLoading(false);
-      setDeleteModal({ show: false, studentId: null, studentName: "" });
-    }
-  };
+  if (!deleteModal.studentId) return;
+  setLoading(true);
+  try {
+    await deleteStudent(deleteModal.studentId);
+    await Swal.fire({
+      icon: 'success',
+      title: 'Deleted!',
+      text: 'Student has been removed.',
+      timer: 2000,
+      showConfirmButton: false,
+    });
+    await loadStudents();
+  } catch (error) {
+    console.error("Delete error", error);
+    await Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Could not delete student.',
+    });
+  } finally {
+    setLoading(false);
+    setDeleteModal({ show: false, studentId: null, studentName: "" });
+  }
+};
 
   const cancelDelete = () => {
     setDeleteModal({ show: false, studentId: null, studentName: "" });
