@@ -1,79 +1,222 @@
-# 🎓 StudentHub Frontend
+# 🎓 Student Management Frontend
 
-<div align="center">
-  <img src="link-to-your-project-logo-or-screenshot.png" alt="Project Logo/Screenshot" width="600"/>
-  <p>
-    <strong>A sleek and intuitive dashboard for managing student information.</strong>
-  </p>
-  <p>
-    Built with [Your Tech Stack] • Designed for simplicity • Real-time updates
-  </p>
-</div>
+A modern and intuitive **Frontend UI** for the Student Management System application — built with **React**, **Vite**, and **TypeScript**. This frontend works seamlessly with the backend API to perform **CRUD operations** on student data and supports **user authentication**, search, filtering, and real‑time updates.
+
+---
 
 ## ✨ Features
 
+💻 **User Authentication**  
+✔ Login page (username & password)  
+✔ Redirect to dashboard on successful login
 
-*   **📋 Student Roster:** View all students in a clean, sortable table.
-*   **➕ Add New Students:** Quickly add student details through a simple form.
-*   **🔍 Smart Search:** Instantly filter the student list by name or ID.
-*   **📊 Grade Overview:** Visual representation of class performance (optional feature).
+📊 **Dashboard**  
+✔ Shows total number of students  
+✔ Navigation to student management page
+
+📋 **Student Management**  
+✔ List all students in a table view  
+✔ Add new students  
+✔ Edit student details  
+✔ Delete students with confirmation  
+✔ Search students by name or email  
+✔ Modern input validation
+
+📦 **API Integration**  
+✔ Connects with Spring Boot backend APIs  
+✔ Uses Axios for HTTP requests  
+✔ Handles errors gracefully
+
+🎨 **Frontend Tech Stack**  
+✔ React with TypeScript  
+✔ Vite for fast development  
+✔ Tailwind CSS for styling  
+✔ React Router for client side routing  
+✔ Functional components with hooks
+
+---
 
 ## 🚀 Live Demo
 
-Check out the live application: [Link to your deployed app, if available]
+**Coming soon!** *(You can add your hosted deployment link here)*
 
-## 🛠️ Built With
+---
 
-*   [React](https://reactjs.org/) - Frontend library
-*   [Vite](https://vitejs.dev/) - Build tool
-*   [Tailwind CSS](https://tailwindcss.com/) - Styling
+## 🧱 Folder Structure
 
-## ⚙️ Getting Started
+student-management-frontend/
+├── public/
+├── src/
+│   ├── api/
+│   │   └── api.ts                # Axios base configuration
+│   │
+│   ├── components/               # Reusable UI components
+│   │
+│   ├── pages/
+│   │   ├── Dashboard.tsx         # Dashboard page
+│   │   ├── Login.tsx             # Login page
+│   │   └── Students.tsx          # Students CRUD page
+│   │
+│   ├── services/
+│   │   ├── authservice.ts        # Auth HTTP calls
+│   │   └── studentsService.ts    # Student HTTP calls
+│   │
+│   ├── types/
+│   │   ├── User.ts               # User interface
+│   │   └── Student.ts            # Student interface
+│   │
+│   ├── App.tsx                   # Application routes
+│   └── main.tsx                  # Vite entry
+├── tailwind.config.js
+├── vite.config.ts
+└── package.json
 
-Follow these steps to get a local copy up and running.
+---
+
+## 🧠 Core Concepts
+
+**Axios API Service**  
+Centralized HTTP client (`api.ts`) that points to backend base URL (`http://localhost:8080/api/v1`). Used by all services.
+
+**Auth Service**  
+Handles `loginUser()` and `register()` requests to backend.
+
+**Students Service**  
+Handles:
+- `getStudents()`
+- `createStudent()`
+- `updateStudent()`
+- `deleteStudent()`
+
+**React Router**  
+Client‑side navigation between:
+- Login
+- Dashboard
+- Students page
+
+**State Management**  
+Local state using React Hooks (`useState`, `useEffect`) and controlled form inputs.
+
+---
+
+## 📦 Installation & Setup
 
 ### Prerequisites
 
-*   npm
-    ```sh
-    npm install npm@latest -g
-    ```
+Make sure you have the following installed:
 
-### Installation
+✔ Node.js (v14+)  
+✔ npm / yarn
 
-1.  Clone the repo
-    ```sh
-    git clone https://github.com/smadhuranga/student-frontend.git
-    ```
-2.  Install NPM packages
-    ```sh
-    npm install
-    ```
-3.  Start the development server
-    ```sh
-    npm run dev
-    ```
+---
 
-## 📸 Screenshots
+### Steps
 
-[Include a few screenshots of your application's interface here]
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/smadhuranga/student-management-frontend.git
 
-## 🤝 Contributing
+	2.	Go into the project directory
 
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+cd student-management-frontend
 
-1.  Fork the Project
-2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4.  Push to the Branch (`git push origin feature/AmazingFeature`)
-5.  Open a Pull Request
 
-## 📄 License
+	3.	Install dependencies
 
-Distributed under the MIT License. See `LICENSE.txt` for more information.
+npm install
+# or
+yarn
 
-## 📬 Contact
 
-Your Name - [@your_twitter](https://twitter.com/your_twitter) - email@example.com
+	4.	Run the development server
 
-Project Link: [https://github.com/smadhuranga/student-frontend](https://github.com/smadhuranga/student-frontend)
+npm run dev
+
+
+	5.	Open in Browser
+
+http://localhost:5173
+
+
+
+⸻
+
+🔗 Connect to Backend
+
+This frontend expects the backend API at:
+
+http://localhost:8080/api/v1
+
+Make sure your backend service (Spring Boot) is running and accessible.
+
+⸻
+
+🧪 Usage
+
+Login
+
+✔ Enter your registered username and password
+✔ On success → redirect to /dashboard
+
+Students Management
+
+✔ See list of student records
+✔ Filter by search box
+✔ Add → Edit → Delete operations with confirmation
+
+⸻
+
+⚙ Scripts
+
+Command	Description
+npm run dev	Start development server
+npm run build	Build production optimized app
+npm run preview	Preview production build
+
+
+⸻
+
+📌 What You’ll Learn
+
+By exploring this frontend project you will learn:
+
+✔ How React + Vite works together
+✔ TypeScript interfaces for typing
+✔ Axios HTTP calls with backend
+✔ React Router navigation
+✔ Form handling and validation
+✔ Component structure planning
+✔ Basic authentication flow
+
+⸻
+
+🤝 Contributing
+
+Contributions are always welcome!
+If you have ideas for improving features, UI, performance, or bug fixes — feel free to submit a pull request.
+
+Steps:
+1️⃣ Fork the Repo
+2️⃣ Create your feature branch
+3️⃣ Commit your changes
+4️⃣ Push to branch
+5️⃣ Open a Pull Request
+
+⸻
+
+📄 License
+
+Distributed under the MIT License.
+See LICENSE for more information.
+
+⸻
+
+👤 Contact
+
+Supun Madhuranga
+📧 Email: your_email@example.com
+🔗 GitHub: https://github.com/smadhuranga
+
+⸻
+
+🎉 Thank you for exploring the Student Management Frontend! Build, Learn, and Share.  ￼
