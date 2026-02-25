@@ -32,6 +32,7 @@ const Students: React.FC = () => {
     loadStudents();
   }, []);
 
+  // Function to load students
   const loadStudents = async () => {
     setLoading(true);
     try {
@@ -45,6 +46,7 @@ const Students: React.FC = () => {
     }
   };
 
+  // Function to handle form input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -93,7 +95,7 @@ const Students: React.FC = () => {
   }
 };
 
-  // Convert various date formats to "YYYY-MM-DD"
+// Convert various date formats to "YYYY-MM-DD"
 function formatDateForInput(dateString: string): string {
   if (!dateString) return "";
 
@@ -107,6 +109,7 @@ function formatDateForInput(dateString: string): string {
   return `${year}-${month}-${day}`;
 }
 
+// Function to handle edit
   const handleEdit = (student: Student) => {
   const formattedDOB = formatDateForInput(student.dateOfBirth);
   const formattedEnrollment = formatDateForInput(student.enrollmentDate);
@@ -121,6 +124,7 @@ function formatDateForInput(dateString: string): string {
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
+// Function to handle delete
   const handleDeleteClick = (id: number, firstName: string, lastName: string) => {
     setDeleteModal({
       show: true,
@@ -129,6 +133,7 @@ function formatDateForInput(dateString: string): string {
     });
   };
 
+  // Function to confirm delete
   const confirmDelete = async () => {
   if (!deleteModal.studentId) return;
   setLoading(true);
@@ -155,6 +160,7 @@ function formatDateForInput(dateString: string): string {
   }
 };
 
+// Function to cancel delete
   const cancelDelete = () => {
     setDeleteModal({ show: false, studentId: null, studentName: "" });
   };

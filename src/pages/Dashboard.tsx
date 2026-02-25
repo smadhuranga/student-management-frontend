@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { getStudents } from "../services/studentservice";
 
 const Dashboard: React.FC = () => {
+  
   const navigate = useNavigate();
   const [totalStudents, setTotalStudents] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -11,6 +12,7 @@ const Dashboard: React.FC = () => {
     loadStudents();
   }, []);
 
+  // Function to load students and update the total count
   const loadStudents = async () => {
     setLoading(true);
     try {
@@ -23,6 +25,7 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  // Function to handle logout
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/");

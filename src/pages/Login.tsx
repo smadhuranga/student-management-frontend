@@ -11,6 +11,7 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Function to handle login
   const handleLogin = async () => {
   if (!name || !password) {
     setError("Please enter both username and password");
@@ -42,7 +43,8 @@ const Login: React.FC = () => {
   }
 };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+// Function to handle Enter key press for login
+const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") handleLogin();
   };
 
