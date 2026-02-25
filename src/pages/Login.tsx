@@ -4,13 +4,18 @@ import { loginUser } from "../services/authservice";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
+    if (!name || !password) {
+      alert("Please enter username and password");
+      return;
+    }
+
     try {
-      await loginUser({ username: name, password: password });
+      console.log("Payload sent to backend:", { Name: name, Password: password });
+      await loginUser({ Name: name, Password: password }); // match backend fields exactly
       navigate("/dashboard");
     } catch (error) {
       console.error("Login failed", error);
@@ -19,30 +24,28 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className='flex flex-col justify-center items-center h-screen bg-gray-100 fade-in animation-delay-2000 '>
-      <h2 className='text-4xl font-bold text-blue-500'>Login page</h2>
+    <div className="flex flex-col justify-center items-center h-screen bg-gray-100 fade-in animation-delay-2000">
+      <h2 className="text-4xl font-bold text-blue-500 mb-4">Login Page</h2>
 
-      <textarea
-        name="Name"
-        id="username"
-        placeholder='Username'
+      <input
+        type="text"
+        placeholder="Username"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        className='mb-4 p-2 border border-gray-300 rounded focus:ring-2 focus-ring-blue-500 '
-      ></textarea>
+        className="mb-4 p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 w-72"
+      />
 
-      <textarea
-        name="Password"
-        id="password"
-        placeholder='Password'
+      <input
+        type="password"
+        placeholder="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        className='mb-4 p-2 border border-gray-300 rounded focus:ring-2 focus-ring-blue-500'
-      ></textarea>
+        className="mb-4 p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 w-72"
+      />
 
       <button
         onClick={handleLogin}
-        className='px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors duration-300'
+        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors duration-300"
       >
         Login
       </button>
