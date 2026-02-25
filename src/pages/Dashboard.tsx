@@ -1,39 +1,39 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { getStudents } from "../services/studentservice";
+import React, {useEffect, useState} from "react";
+import {useNavigate} from "react-router-dom";
+import {getStudents} from "../services/studentservice";
 
 const Dashboard: React.FC = () => {
-  
-  const navigate = useNavigate();
-  const [totalStudents, setTotalStudents] = useState(0);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadStudents();
-  }, []);
+    const navigate = useNavigate();
+    const [totalStudents, setTotalStudents] = useState(0);
+    const [loading, setLoading] = useState(true);
 
-  // Function to load students and update the total count
-  const loadStudents = async () => {
-    setLoading(true);
-    try {
-      const students = await getStudents();
-      setTotalStudents(students.length);
-    } catch (error) {
-      console.error("Failed to load students", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    useEffect(() => {
+        loadStudents();
+    }, []);
 
-  // Function to handle logout
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/");
-  };
+    // Function to load students and update the total count
+    const loadStudents = async () => {
+        setLoading(true);
+        try {
+            const students = await getStudents();
+            setTotalStudents(students.length);
+        } catch (error) {
+            console.error("Failed to load students", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  return (
-    <>
-      <style>{`
+    // Function to handle logout
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        navigate("/");
+    };
+
+    return (
+        <>
+            <style>{`
         .dashboard-wrapper {
           min-height: 100vh;
           background: linear-gradient(125deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
@@ -281,66 +281,66 @@ const Dashboard: React.FC = () => {
         }
       `}</style>
 
-      <div className="dashboard-wrapper">
-        {/* Animated background blobs */}
-        <div className="blob blob1"></div>
-        <div className="blob blob2"></div>
-        <div className="blob blob3"></div>
+            <div className="dashboard-wrapper">
+                {/* Animated background blobs */}
+                <div className="blob blob1"></div>
+                <div className="blob blob2"></div>
+                <div className="blob blob3"></div>
 
-        {/* Main glass panel */}
-        <div className="glass-panel">
-          <div className="header">
-            <h1 className="greeting">Welcome back</h1>
-            <p className="subhead">Manage your students efficiently</p>
-          </div>
+                {/* Main glass panel */}
+                <div className="glass-panel">
+                    <div className="header">
+                        <h1 className="greeting">Welcome back</h1>
+                        <p className="subhead">Manage your students efficiently</p>
+                    </div>
 
-          {/* Cards grid */}
-          <div className="cards-grid">
-            {/* Total Students Card */}
-            <div className="stat-card">
-              <div className="card-icon">👥</div>
-              <h2 className="card-title">Total Students</h2>
-              {loading ? (
-                <div className="loading-placeholder">...</div>
-              ) : (
-                <div className="card-value">{totalStudents}</div>
-              )}
-              <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem' }}>
-                enrolled
-              </div>
+                    {/* Cards grid */}
+                    <div className="cards-grid">
+                        {/* Total Students Card */}
+                        <div className="stat-card">
+                            <div className="card-icon">👥</div>
+                            <h2 className="card-title">Total Students</h2>
+                            {loading ? (
+                                <div className="loading-placeholder">...</div>
+                            ) : (
+                                <div className="card-value">{totalStudents}</div>
+                            )}
+                            <div style={{color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem'}}>
+                                enrolled
+                            </div>
+                        </div>
+
+                        {/* Quick Actions */}
+                        <div className="stat-card" onClick={() => navigate("/students")} style={{cursor: 'pointer'}}>
+                            <div className="card-icon">📋</div>
+                            <h2 className="card-title">Manage Students</h2>
+                            <div style={{fontSize: '1.2rem', marginTop: '0.5rem'}}>→</div>
+                            <div style={{color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem', marginTop: '0.5rem'}}>
+                                View, add, edit, delete
+                            </div>
+                        </div>
+
+                        {/* Additional card: System Status (example) */}
+                        <div className="stat-card">
+                            <div className="card-icon">⚙️</div>
+                            <h2 className="card-title">System Status</h2>
+                            <div style={{fontSize: '1rem', color: '#aaffaa'}}>● Online</div>
+                            <div style={{color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', marginTop: '0.5rem'}}>
+                                All services operational
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Logout button */}
+                    <div style={{display: 'flex', justifyContent: 'center'}}>
+                        <button className="logout-btn" onClick={handleLogout}>
+                            Logout
+                        </button>
+                    </div>
+                </div>
             </div>
-
-            {/* Quick Actions */}
-            <div className="stat-card" onClick={() => navigate("/students")} style={{ cursor: 'pointer' }}>
-              <div className="card-icon">📋</div>
-              <h2 className="card-title">Manage Students</h2>
-              <div style={{ fontSize: '1.2rem', marginTop: '0.5rem' }}>→</div>
-              <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem', marginTop: '0.5rem' }}>
-                View, add, edit, delete
-              </div>
-            </div>
-
-            {/* Additional card: System Status (example) */}
-            <div className="stat-card">
-              <div className="card-icon">⚙️</div>
-              <h2 className="card-title">System Status</h2>
-              <div style={{ fontSize: '1rem', color: '#aaffaa' }}>● Online</div>
-              <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem', marginTop: '0.5rem' }}>
-                All services operational
-              </div>
-            </div>
-          </div>
-
-          {/* Logout button */}
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <button className="logout-btn" onClick={handleLogout}>
-              Logout
-            </button>
-          </div>
-        </div>
-      </div>
-    </>
-  );
+        </>
+    );
 };
 
 export default Dashboard;

@@ -1,6 +1,5 @@
-
 import api from "../api/api";
-import type { Student } from "../types/Student";
+import type {Student} from "../types/Student";
 
 // Functions to interact with the student API
 export const getStudents = async (): Promise<Student[]> => {
