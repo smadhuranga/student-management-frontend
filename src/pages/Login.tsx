@@ -2,6 +2,11 @@ import React, {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {loginUser} from "../services/authservice";
 import Swal from 'sweetalert2';
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+
+
+
 
 const Login: React.FC = () => {
     const navigate = useNavigate();
@@ -100,7 +105,7 @@ const Login: React.FC = () => {
                             style={styles.eyeButton}
                             aria-label={showPassword ? "Hide password" : "Show password"}
                         >
-                            {showPassword ? "👁️" : "👁️‍🗨️"}
+                            {showPassword ? <VisibilityOff/> :<Visibility/>}
                         </button>
                     </div>
                 </div>
