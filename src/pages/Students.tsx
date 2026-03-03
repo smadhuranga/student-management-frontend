@@ -64,8 +64,25 @@ const Students: React.FC = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        // Convert to lowercase for consistency
+        setFormData({ ...formData, email: e.target.value.toLowerCase() });
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Email format validation
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(formData.email)) {
+            await Swal.fire({
+                icon: "error",
+                title: "Invalid Email",
+                text: "Please enter a valid email address (e.g., name@example.com).",
+            });
+            return;
+        }
+
         setLoading(true);
         try {
             if (editingId) {
@@ -96,15 +113,31 @@ const Students: React.FC = () => {
             });
             setEditingId(null);
             await loadStudents();
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Submit error", error);
-            // Check if it's a duplicate email error (status 409)
-            if (error.response && error.response.status === 409) {
-                await Swal.fire({
-                    icon: "error",
-                    title: "Email already exists",
-                    text: error.response.data?.message || "This email is already registered. Please use a different email.",
-                });
+            // Check if it's an HTTP error with response (like from axios)
+            if (
+                error &&
+                typeof error === "object" &&
+                "response" in error &&
+                error.response &&
+                typeof error.response === "object" &&
+                "status" in error.response
+            ) {
+                const err = error as { response: { status: number; data?: { message?: string } } };
+                if (err.response.status === 409) {
+                    await Swal.fire({
+                        icon: "error",
+                        title: "Email already exists",
+                        text: err.response.data?.message || "This email is already registered. Please use a different email.",
+                    });
+                } else {
+                    await Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "An error occurred. Please try again.",
+                    });
+                }
             } else {
                 await Swal.fire({
                     icon: "error",
@@ -214,7 +247,6 @@ const Students: React.FC = () => {
                 bValue = b.enrollmentDate ?? "";
                 break;
             default:
-                // For any other column (should not happen), fallback to empty string
                 aValue = "";
                 bValue = "";
         }
@@ -244,17 +276,14 @@ const Students: React.FC = () => {
     // Handle header click for sorting
     const handleSort = (column: string) => {
         if (sortColumn === column) {
-            // Toggle direction
             setSortDirection(sortDirection === "asc" ? "desc" : "asc");
         } else {
             setSortColumn(column);
             setSortDirection("asc");
         }
-        // Optionally reset to first page when sorting changes
         setCurrentPage(1);
     };
 
-    // Helper to show sort indicator
     const getSortIndicator = (column: string) => {
         if (sortColumn !== column) return " ↕️";
         return sortDirection === "asc" ? " ↑" : " ↓";
@@ -263,7 +292,7 @@ const Students: React.FC = () => {
     return (
         <>
             <style>{`
-        /* ===== Global Styles & Animations ===== */
+        /* (keep existing styles) */
         .students-page {
           min-height: 100vh;
           padding: 40px 20px;
@@ -276,7 +305,6 @@ const Students: React.FC = () => {
           font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
-        /* Animated background blobs */
         .blob {
           position: absolute;
           border-radius: 50%;
@@ -320,7 +348,6 @@ const Students: React.FC = () => {
           75% { transform: translate(30px, 20px) scale(1.05); }
         }
 
-        /* Header */
         .header {
           display: flex;
           justify-content: space-between;
@@ -332,7 +359,6 @@ const Students: React.FC = () => {
           gap: 15px;
           position: relative;
           z-index: 10;
-          /* Add padding to align with glass cards */
           padding-left: 36px;
           padding-right: 36px;
           box-sizing: border-box;
@@ -370,14 +396,12 @@ const Students: React.FC = () => {
           border-color: rgba(255,255,255,0.4);
         }
 
-        /* Search */
         .searchWrapper {
           position: relative;
           width: 100%;
           max-width: 1200px;
           margin-bottom: 30px;
           z-index: 10;
-          /* Add padding to align with glass cards */
           padding-left: 36px;
           padding-right: 36px;
           box-sizing: border-box;
@@ -419,7 +443,6 @@ const Students: React.FC = () => {
           cursor: pointer;
           opacity: 0.7;
           transition: opacity 0.2s;
-          /* Adjust for parent padding */
           right: calc(25px + 36px);
         }
 
@@ -427,7 +450,6 @@ const Students: React.FC = () => {
           opacity: 1;
         }
 
-        /* Glass Cards */
         .glassCard {
           width: 100%;
           max-width: 1200px;
@@ -461,7 +483,6 @@ const Students: React.FC = () => {
           gap: 10px;
         }
 
-        /* Form */
         .form {
           display: flex;
           flex-direction: column;
@@ -534,7 +555,6 @@ const Students: React.FC = () => {
           cursor: not-allowed;
         }
 
-        /* Table */
         .tableWrapper {
           overflow-x: auto;
           border-radius: 24px;
@@ -617,7 +637,6 @@ const Students: React.FC = () => {
           font-size: 1.2rem;
         }
 
-        /* Pagination */
         .paginationContainer {
           display: flex;
           justify-content: space-between;
@@ -690,7 +709,6 @@ const Students: React.FC = () => {
           color: white;
         }
 
-        /* Modal */
         .modalOverlay {
           position: fixed;
           top: 0;
@@ -785,12 +803,10 @@ const Students: React.FC = () => {
       `}</style>
 
             <div className="students-page">
-                {/* Animated blobs */}
                 <div className="blob blob1"></div>
                 <div className="blob blob2"></div>
                 <div className="blob blob3"></div>
 
-                {/* Delete Modal */}
                 {deleteModal.show && (
                     <div className="modalOverlay" onClick={cancelDelete}>
                         <div className="modal" onClick={(e) => e.stopPropagation()}>
@@ -811,7 +827,6 @@ const Students: React.FC = () => {
                     </div>
                 )}
 
-                {/* Header */}
                 <div className="header">
                     <h1 className="title">🎓 Student Portal</h1>
                     <button className="backBtn" onClick={() => navigate("/dashboard")}>
@@ -819,7 +834,6 @@ const Students: React.FC = () => {
                     </button>
                 </div>
 
-                {/* Form Card */}
                 <div className="glassCard">
                     <h2 className="cardTitle">
                         {editingId ? "✏️ Edit Student" : "➕ Add New Student"}
@@ -857,7 +871,7 @@ const Students: React.FC = () => {
                                 type="email"
                                 placeholder="john.doe@example.com"
                                 value={formData.email}
-                                onChange={handleChange}
+                                onChange={handleEmailChange}
                                 required
                                 className="input"
                             />
@@ -894,7 +908,6 @@ const Students: React.FC = () => {
                     </form>
                 </div>
 
-                {/* Search */}
                 <div className="searchWrapper">
                     <input
                         type="text"
@@ -910,7 +923,6 @@ const Students: React.FC = () => {
                     )}
                 </div>
 
-                {/* Table Card */}
                 <div className="glassCard">
                     <h2 className="cardTitle">📋 Registered Students</h2>
                     {loading && students.length === 0 ? (
@@ -970,7 +982,6 @@ const Students: React.FC = () => {
                                 </table>
                             </div>
 
-                            {/* Pagination Controls */}
                             <div className="paginationContainer">
                                 <div className="rowsPerPage">
                                     <span>Rows per page:</span>
