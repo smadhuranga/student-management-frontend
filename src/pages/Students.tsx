@@ -24,7 +24,9 @@ const Students: React.FC = () => {
     }>({show: false, studentId: null, studentName: ""});
 
     useEffect(() => {
-        loadStudents();
+        (async () => {
+            await loadStudents();
+        })();
     }, []);
 
     // Function to load students
