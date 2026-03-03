@@ -1,8 +1,13 @@
-import React, {useEffect, useState} from "react";
-import type {Student} from "../types/Student";
-import Swal from 'sweetalert2';
-import {createStudent, deleteStudent, getStudents, updateStudent,} from "../services/studentservice";
-import {useNavigate} from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import type { Student } from "../types/Student";
+import Swal from "sweetalert2";
+import {
+    createStudent,
+    deleteStudent,
+    getStudents,
+    updateStudent,
+} from "../services/studentservice";
+import { useNavigate } from "react-router-dom";
 
 const Students: React.FC = () => {
     const navigate = useNavigate();
@@ -21,7 +26,15 @@ const Students: React.FC = () => {
         show: boolean;
         studentId: number | null;
         studentName: string;
-    }>({show: false, studentId: null, studentName: ""});
+    }>({ show: false, studentId: null, studentName: "" });
+
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
+
+    // Sorting state
+    const [sortColumn, setSortColumn] = useState<string>("id");
+    const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
     useEffect(() => {
         (async () => {
@@ -29,7 +42,11 @@ const Students: React.FC = () => {
         })();
     }, []);
 
-    // Function to load students
+    // Reset to first page when search changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search]);
+
     const loadStudents = async () => {
         setLoading(true);
         try {
@@ -43,9 +60,8 @@ const Students: React.FC = () => {
         }
     };
 
-    // Function to handle form input changes
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({...formData, [e.target.name]: e.target.value});
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -55,18 +71,18 @@ const Students: React.FC = () => {
             if (editingId) {
                 await updateStudent(editingId, formData);
                 await Swal.fire({
-                    icon: 'success',
-                    title: 'Updated!',
-                    text: 'Student updated successfully.',
+                    icon: "success",
+                    title: "Updated!",
+                    text: "Student updated successfully.",
                     timer: 2000,
                     showConfirmButton: false,
                 });
             } else {
                 await createStudent(formData);
                 await Swal.fire({
-                    icon: 'success',
-                    title: 'Created!',
-                    text: 'New student added successfully.',
+                    icon: "success",
+                    title: "Created!",
+                    text: "New student added successfully.",
                     timer: 2000,
                     showConfirmButton: false,
                 });
@@ -80,33 +96,36 @@ const Students: React.FC = () => {
             });
             setEditingId(null);
             await loadStudents();
-        } catch (error) {
+        } catch (error: any) {
             console.error("Submit error", error);
-            await Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'An error occurred. Please try again.',
-            });
+            // Check if it's a duplicate email error (status 409)
+            if (error.response && error.response.status === 409) {
+                await Swal.fire({
+                    icon: "error",
+                    title: "Email already exists",
+                    text: error.response.data?.message || "This email is already registered. Please use a different email.",
+                });
+            } else {
+                await Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "An error occurred. Please try again.",
+                });
+            }
         } finally {
             setLoading(false);
         }
     };
 
-// Convert various date formats to "YYYY-MM-DD"
     function formatDateForInput(dateString: string): string {
         if (!dateString) return "";
-
         const date = new Date(dateString);
-
-        // get year, month, day
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, "0");
         const day = String(date.getDate()).padStart(2, "0");
-
         return `${year}-${month}-${day}`;
     }
 
-// Function to handle edit
     const handleEdit = (student: Student) => {
         const formattedDOB = formatDateForInput(student.dateOfBirth);
         const formattedEnrollment = formatDateForInput(student.enrollmentDate);
@@ -118,10 +137,9 @@ const Students: React.FC = () => {
         });
 
         setEditingId(student.id || null);
-        window.scrollTo({top: 0, behavior: "smooth"});
+        window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
-// Function to handle delete
     const handleDeleteClick = (id: number, firstName: string, lastName: string) => {
         setDeleteModal({
             show: true,
@@ -130,16 +148,15 @@ const Students: React.FC = () => {
         });
     };
 
-    // Function to confirm delete
     const confirmDelete = async () => {
         if (!deleteModal.studentId) return;
         setLoading(true);
         try {
             await deleteStudent(deleteModal.studentId);
             await Swal.fire({
-                icon: 'success',
-                title: 'Deleted!',
-                text: 'Student has been removed.',
+                icon: "success",
+                title: "Deleted!",
+                text: "Student has been removed.",
                 timer: 2000,
                 showConfirmButton: false,
             });
@@ -147,21 +164,21 @@ const Students: React.FC = () => {
         } catch (error) {
             console.error("Delete error", error);
             await Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Could not delete student.',
+                icon: "error",
+                title: "Error",
+                text: "Could not delete student.",
             });
         } finally {
             setLoading(false);
-            setDeleteModal({show: false, studentId: null, studentName: ""});
+            setDeleteModal({ show: false, studentId: null, studentName: "" });
         }
     };
 
-// Function to cancel delete
     const cancelDelete = () => {
-        setDeleteModal({show: false, studentId: null, studentName: ""});
+        setDeleteModal({ show: false, studentId: null, studentName: "" });
     };
 
+    // Filter students based on search
     const filteredStudents = Array.isArray(students)
         ? students.filter((student) =>
             `${student.firstName} ${student.lastName} ${student.email}`
@@ -169,6 +186,79 @@ const Students: React.FC = () => {
                 .includes(search.toLowerCase())
         )
         : [];
+
+    // Sorting function (no 'any' type used)
+    const sortedStudents = [...filteredStudents].sort((a, b) => {
+        let aValue: string | number;
+        let bValue: string | number;
+
+        switch (sortColumn) {
+            case "id":
+                aValue = a.id ?? 0;
+                bValue = b.id ?? 0;
+                break;
+            case "name":
+                aValue = `${a.firstName} ${a.lastName}`.toLowerCase();
+                bValue = `${b.firstName} ${b.lastName}`.toLowerCase();
+                break;
+            case "email":
+                aValue = a.email?.toLowerCase() ?? "";
+                bValue = b.email?.toLowerCase() ?? "";
+                break;
+            case "dateOfBirth":
+                aValue = a.dateOfBirth ?? "";
+                bValue = b.dateOfBirth ?? "";
+                break;
+            case "enrollmentDate":
+                aValue = a.enrollmentDate ?? "";
+                bValue = b.enrollmentDate ?? "";
+                break;
+            default:
+                // For any other column (should not happen), fallback to empty string
+                aValue = "";
+                bValue = "";
+        }
+
+        if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
+        if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
+        return 0;
+    });
+
+    // Pagination calculations
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = sortedStudents.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(sortedStudents.length / itemsPerPage);
+
+    const goToPage = (page: number) => {
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+        }
+    };
+
+    const handleItemsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setItemsPerPage(Number(e.target.value));
+        setCurrentPage(1); // reset to first page
+    };
+
+    // Handle header click for sorting
+    const handleSort = (column: string) => {
+        if (sortColumn === column) {
+            // Toggle direction
+            setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+        } else {
+            setSortColumn(column);
+            setSortDirection("asc");
+        }
+        // Optionally reset to first page when sorting changes
+        setCurrentPage(1);
+    };
+
+    // Helper to show sort indicator
+    const getSortIndicator = (column: string) => {
+        if (sortColumn !== column) return " ↕️";
+        return sortDirection === "asc" ? " ↑" : " ↓";
+    };
 
     return (
         <>
@@ -242,6 +332,10 @@ const Students: React.FC = () => {
           gap: 15px;
           position: relative;
           z-index: 10;
+          /* Add padding to align with glass cards */
+          padding-left: 36px;
+          padding-right: 36px;
+          box-sizing: border-box;
         }
 
         .title {
@@ -283,6 +377,10 @@ const Students: React.FC = () => {
           max-width: 1200px;
           margin-bottom: 30px;
           z-index: 10;
+          /* Add padding to align with glass cards */
+          padding-left: 36px;
+          padding-right: 36px;
+          box-sizing: border-box;
         }
 
         .search {
@@ -298,6 +396,7 @@ const Students: React.FC = () => {
           color: white;
           box-shadow: 0 8px 25px rgba(0,0,0,0.2);
           transition: all 0.3s;
+          box-sizing: border-box;
         }
 
         .search:focus {
@@ -320,6 +419,8 @@ const Students: React.FC = () => {
           cursor: pointer;
           opacity: 0.7;
           transition: opacity 0.2s;
+          /* Adjust for parent padding */
+          right: calc(25px + 36px);
         }
 
         .clearSearch:hover {
@@ -340,6 +441,7 @@ const Students: React.FC = () => {
           box-shadow: 0 30px 60px rgba(0,0,0,0.3), inset 0 1px 2px rgba(255,255,255,0.1);
           z-index: 10;
           animation: fadeInUp 0.6s ease-out;
+          box-sizing: border-box;
         }
 
         @keyframes fadeInUp {
@@ -394,6 +496,8 @@ const Students: React.FC = () => {
           outline: none;
           color: white;
           transition: all 0.2s;
+          box-sizing: border-box;
+          width: 100%;
         }
 
         .input:focus {
@@ -451,6 +555,13 @@ const Students: React.FC = () => {
           font-weight: 600;
           border-bottom: 1px solid rgba(255,255,255,0.1);
           color: rgba(255,255,255,0.9);
+          cursor: pointer;
+          user-select: none;
+          transition: background 0.2s;
+        }
+
+        .th:hover {
+          background: rgba(255,255,255,0.15);
         }
 
         .td {
@@ -504,6 +615,79 @@ const Students: React.FC = () => {
           color: rgba(255,255,255,0.7);
           padding: 40px;
           font-size: 1.2rem;
+        }
+
+        /* Pagination */
+        .paginationContainer {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-top: 24px;
+          flex-wrap: wrap;
+          gap: 16px;
+        }
+
+        .paginationControls {
+          display: flex;
+          gap: 12px;
+          align-items: center;
+        }
+
+        .pageButton {
+          padding: 10px 18px;
+          background: rgba(255,255,255,0.1);
+          border: 1px solid rgba(255,255,255,0.2);
+          border-radius: 30px;
+          font-size: 0.95rem;
+          color: white;
+          cursor: pointer;
+          transition: all 0.2s;
+          min-width: 40px;
+        }
+
+        .pageButton:hover:not(:disabled) {
+          background: rgba(255,255,255,0.2);
+          border-color: rgba(255,255,255,0.4);
+        }
+
+        .pageButton:disabled {
+          opacity: 0.3;
+          cursor: not-allowed;
+        }
+
+        .activePage {
+          background: rgba(255,255,255,0.25);
+          border-color: rgba(255,255,255,0.5);
+          font-weight: 600;
+        }
+
+        .pageInfo {
+          color: rgba(255,255,255,0.8);
+          font-size: 0.95rem;
+          margin: 0 12px;
+        }
+
+        .rowsPerPage {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          color: rgba(255,255,255,0.8);
+        }
+
+        .rowsSelect {
+          padding: 8px 16px;
+          background: rgba(255,255,255,0.1);
+          border: 1px solid rgba(255,255,255,0.2);
+          border-radius: 30px;
+          color: white;
+          font-size: 0.95rem;
+          outline: none;
+          cursor: pointer;
+        }
+
+        .rowsSelect option {
+          background: #302b63;
+          color: white;
         }
 
         /* Modal */
@@ -592,7 +776,11 @@ const Students: React.FC = () => {
         @media (max-width: 640px) {
           .title { font-size: 2rem; }
           .glassCard { padding: 24px; }
+          .header { padding-left: 24px; padding-right: 24px; }
+          .searchWrapper { padding-left: 24px; padding-right: 24px; }
+          .clearSearch { right: calc(25px + 24px); }
           .row { grid-template-columns: 1fr; }
+          .paginationContainer { flex-direction: column; align-items: flex-start; }
         }
       `}</style>
 
@@ -629,22 +817,6 @@ const Students: React.FC = () => {
                     <button className="backBtn" onClick={() => navigate("/dashboard")}>
                         ← Dashboard
                     </button>
-                </div>
-
-                {/* Search */}
-                <div className="searchWrapper">
-                    <input
-                        type="text"
-                        placeholder="Search by name or email..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="search"
-                    />
-                    {search && (
-                        <span className="clearSearch" onClick={() => setSearch("")}>
-              ✕
-            </span>
-                    )}
                 </div>
 
                 {/* Form Card */}
@@ -716,14 +888,26 @@ const Students: React.FC = () => {
                             </div>
                         </div>
 
-                        <button
-                            type="submit"
-                            className="primaryButton"
-                            disabled={loading}
-                        >
+                        <button type="submit" className="primaryButton" disabled={loading}>
                             {loading ? "Processing..." : editingId ? "Update Student" : "Add Student"}
                         </button>
                     </form>
+                </div>
+
+                {/* Search */}
+                <div className="searchWrapper">
+                    <input
+                        type="text"
+                        placeholder="Search by name or email..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="search"
+                    />
+                    {search && (
+                        <span className="clearSearch" onClick={() => setSearch("")}>
+              ✕
+            </span>
+                    )}
                 </div>
 
                 {/* Table Card */}
@@ -734,53 +918,109 @@ const Students: React.FC = () => {
                     ) : filteredStudents.length === 0 ? (
                         <p className="emptyText">No students found.</p>
                     ) : (
-                        <div className="tableWrapper">
-                            <table className="table">
-                                <thead>
-                                <tr>
-                                    <th className="th">ID</th>
-                                    <th className="th">Name</th>
-                                    <th className="th">Email</th>
-                                    <th className="th">Birthdate</th>
-                                    <th className="th">Enrollment</th>
-                                    <th className="th">Actions</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {filteredStudents.map((student) => (
-                                    <tr key={student.id} className="rowHover">
-                                        <td className="td">{student.id}</td>
-                                        <td className="td">
-                                            {student.firstName} {student.lastName}
-                                        </td>
-                                        <td className="td">{student.email}</td>
-                                        <td className="td">{student.dateOfBirth}</td>
-                                        <td className="td">{student.enrollmentDate}</td>
-                                        <td className="td">
-                                            <button
-                                                className="editBtn"
-                                                onClick={() => handleEdit(student)}
-                                            >
-                                                Edit
-                                            </button>
-                                            <button
-                                                className="deleteBtn"
-                                                onClick={() =>
-                                                    handleDeleteClick(
-                                                        student.id!,
-                                                        student.firstName,
-                                                        student.lastName
-                                                    )
-                                                }
-                                            >
-                                                Delete
-                                            </button>
-                                        </td>
+                        <>
+                            <div className="tableWrapper">
+                                <table className="table">
+                                    <thead>
+                                    <tr>
+                                        <th className="th" onClick={() => handleSort("id")}>
+                                            ID{getSortIndicator("id")}
+                                        </th>
+                                        <th className="th" onClick={() => handleSort("name")}>
+                                            Name{getSortIndicator("name")}
+                                        </th>
+                                        <th className="th" onClick={() => handleSort("email")}>
+                                            Email{getSortIndicator("email")}
+                                        </th>
+                                        <th className="th" onClick={() => handleSort("dateOfBirth")}>
+                                            Birthdate{getSortIndicator("dateOfBirth")}
+                                        </th>
+                                        <th className="th" onClick={() => handleSort("enrollmentDate")}>
+                                            Enrollment{getSortIndicator("enrollmentDate")}
+                                        </th>
+                                        <th className="th">Actions</th>
                                     </tr>
-                                ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+                                    <tbody>
+                                    {currentItems.map((student) => (
+                                        <tr key={student.id} className="rowHover">
+                                            <td className="td">{student.id}</td>
+                                            <td className="td">
+                                                {student.firstName} {student.lastName}
+                                            </td>
+                                            <td className="td">{student.email}</td>
+                                            <td className="td">{student.dateOfBirth}</td>
+                                            <td className="td">{student.enrollmentDate}</td>
+                                            <td className="td">
+                                                <button className="editBtn" onClick={() => handleEdit(student)}>
+                                                    Edit
+                                                </button>
+                                                <button
+                                                    className="deleteBtn"
+                                                    onClick={() =>
+                                                        handleDeleteClick(student.id!, student.firstName, student.lastName)
+                                                    }
+                                                >
+                                                    Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* Pagination Controls */}
+                            <div className="paginationContainer">
+                                <div className="rowsPerPage">
+                                    <span>Rows per page:</span>
+                                    <select
+                                        className="rowsSelect"
+                                        value={itemsPerPage}
+                                        onChange={handleItemsPerPageChange}
+                                    >
+                                        <option value={5}>5</option>
+                                        <option value={10}>10</option>
+                                        <option value={20}>20</option>
+                                        <option value={50}>50</option>
+                                    </select>
+                                </div>
+
+                                <div className="paginationControls">
+                                    <button
+                                        className="pageButton"
+                                        onClick={() => goToPage(1)}
+                                        disabled={currentPage === 1}
+                                    >
+                                        «
+                                    </button>
+                                    <button
+                                        className="pageButton"
+                                        onClick={() => goToPage(currentPage - 1)}
+                                        disabled={currentPage === 1}
+                                    >
+                                        ‹
+                                    </button>
+                                    <span className="pageInfo">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                                    <button
+                                        className="pageButton"
+                                        onClick={() => goToPage(currentPage + 1)}
+                                        disabled={currentPage === totalPages}
+                                    >
+                                        ›
+                                    </button>
+                                    <button
+                                        className="pageButton"
+                                        onClick={() => goToPage(totalPages)}
+                                        disabled={currentPage === totalPages}
+                                    >
+                                        »
+                                    </button>
+                                </div>
+                            </div>
+                        </>
                     )}
                 </div>
             </div>
