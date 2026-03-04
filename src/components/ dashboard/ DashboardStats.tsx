@@ -57,14 +57,14 @@ const DashboardStats: React.FC<Props> = ({
                     ) : (
                         <div className="card-value">{totalStudents}</div>
                     )}
-                    <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.9rem" }}>
+                    <div style={{color: "rgba(255,255,255,0.5)", fontSize: "0.9rem"}}>
                         enrolled
                     </div>
                 </StatCard>
 
                 {/* Manage Students */}
                 <StatCard icon="📋" title="Manage Students" onClick={onManageStudents}>
-                    <div style={{ fontSize: "1.2rem", marginTop: "0.5rem" }}>→</div>
+                    <div style={{fontSize: "1.2rem", marginTop: "0.5rem"}}>→</div>
                     <div
                         style={{
                             color: "rgba(255,255,255,0.6)",
@@ -78,7 +78,7 @@ const DashboardStats: React.FC<Props> = ({
 
                 {/* System Status */}
                 <StatCard icon="⚙️" title="System Status">
-                    <div style={{ fontSize: "1rem", color: "#aaffaa" }}>● Online</div>
+                    <div style={{fontSize: "1rem", color: "#aaffaa"}}>● Online</div>
                     <div
                         style={{
                             color: "rgba(255,255,255,0.5)",

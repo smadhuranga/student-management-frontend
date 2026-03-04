@@ -46,8 +46,10 @@ const Login: React.FC = () => {
         }
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === "Enter") handleLogin();
+    const handleKeyDown = async (e: React.KeyboardEvent) => {
+        if (e.key === "Enter") {
+            await handleLogin();
+        }
     };
 
     return (
