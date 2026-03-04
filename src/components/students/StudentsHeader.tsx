@@ -30,7 +30,8 @@ const StudentsHeader: React.FC<Props> = ({title = "🎓 Student Portal", onBack}
           font-weight: 700;
           background: linear-gradient(145deg, #fff8e7, #ffe6b0);
           -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
+          //-webkit-text-fill-color: transparent;
+          color:white;
           margin: 0;
           letter-spacing: -0.02em;
           text-shadow: 0 4px 20px rgba(0,0,0,0.3);
