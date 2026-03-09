@@ -1,9 +1,9 @@
 import React from "react";
-import type {Student} from "../../types/Student";
+import type { Student } from "../../types/Student";
 
 type Props = {
     loading: boolean;
-    studentsLength: number; // original students.length (for loading message logic)
+    studentsLength: number;
     filteredLength: number;
     currentItems: Student[];
     currentPage: number;
@@ -12,6 +12,7 @@ type Props = {
 
     onEdit: (student: Student) => void;
     onDeleteClick: (id: number, firstName: string, lastName: string) => void;
+    onViewDetails: (studentId: number) => void;
 
     onSort: (col: string) => void;
     sortIndicator: (col: string) => string;
@@ -30,6 +31,7 @@ const StudentsTableCard: React.FC<Props> = ({
                                                 itemsPerPage,
                                                 onEdit,
                                                 onDeleteClick,
+                                                onViewDetails,
                                                 onSort,
                                                 sortIndicator,
                                                 onItemsPerPageChange,
@@ -38,106 +40,223 @@ const StudentsTableCard: React.FC<Props> = ({
     return (
         <>
             <style>{`
-        .tableWrapper { overflow-x: auto; border-radius: 24px; background: rgba(0,0,0,0.1); }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-        .table { width: 100%; border-collapse: collapse; font-size: 1rem; color: white; }
+        .tableWrapper {
+          overflow-x: auto;
+          border-radius: 22px;
+          background: rgba(0,0,0,0.12);
+          border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 0.98rem;
+          color: rgba(255,255,255,.92);
+          min-width: 980px;
+        }
 
         .th {
           text-align: left;
-          padding: 18px 16px;
-          background: rgba(255,255,255,0.08);
-          font-weight: 600;
-          border-bottom: 1px solid rgba(255,255,255,0.1);
-          color: rgba(255,255,255,0.9);
+          padding: 16px 16px;
+          background: rgba(255,255,255,0.06);
+          font-weight: 700;
+          border-bottom: 1px solid rgba(255,255,255,0.10);
+          color: rgba(255,255,255,0.88);
           cursor: pointer;
           user-select: none;
-          transition: background 0.2s;
+          transition: background 0.18s ease, color 0.18s ease;
+          position: sticky;
+          top: 0;
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
         }
-        .th:hover { background: rgba(255,255,255,0.15); }
 
-        .td { padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .rowHover:hover { background: rgba(255,255,255,0.1); transition: background 0.2s; }
+        .th:hover {
+          background: rgba(255,255,255,0.10);
+          color: rgba(255,255,255,.95);
+        }
+
+        .td {
+          padding: 14px 16px;
+          border-bottom: 1px solid rgba(255,255,255,0.06);
+          color: rgba(255,255,255,.90);
+          vertical-align: top;
+        }
+
+        .rowHover:hover {
+          background: rgba(255,255,255,0.06);
+          transition: background 0.18s ease;
+        }
+
+        .studentLink {
+          color: rgba(255,255,255,.96);
+          font-weight: 700;
+          cursor: pointer;
+          text-decoration: none;
+          transition: color 0.18s ease, opacity 0.18s ease;
+        }
+
+        .studentLink:hover {
+          color: #c4b5fd;
+          text-decoration: underline;
+        }
+
+        .courseTag {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: rgba(99,102,241,0.14);
+          border: 1px solid rgba(99,102,241,0.28);
+          border-radius: 999px;
+          padding: 4px 10px;
+          margin: 2px;
+          font-size: 0.82rem;
+          font-weight: 700;
+          color: rgba(255,255,255,.90);
+          white-space: nowrap;
+        }
+
+        .detailsBtn {
+          padding: 8px 16px;
+          margin-right: 10px;
+          margin-bottom: 10px;
+          background: rgba(99, 102, 241, 0.16);
+          border: 1px solid rgba(99, 102, 241, 0.28);
+          border-radius: 999px;
+          font-size: 0.9rem;
+          font-weight: 700;
+          color: rgba(255,255,255,.95);
+          cursor: pointer;
+          transition: transform 0.12s ease, background 0.18s ease, border-color 0.18s ease;
+        }
+
+        .detailsBtn:hover {
+          background: rgba(99, 102, 241, 0.24);
+          border-color: rgba(99, 102, 241, 0.42);
+          transform: translateY(-1px);
+        }
+
+        .detailsBtn:active { transform: translateY(0px); }
 
         .editBtn {
-          padding: 8px 20px;
+          padding: 8px 16px;
           margin-right: 10px;
-          background: rgba(255,255,255,0.15);
-          border: 1px solid rgba(255,255,255,0.2);
-          border-radius: 30px;
+          margin-bottom: 10px;
+          background: rgba(255,255,255,0.10);
+          border: 1px solid rgba(255,255,255,0.16);
+          border-radius: 999px;
           font-size: 0.9rem;
-          font-weight: 500;
-          color: white;
+          font-weight: 700;
+          color: rgba(255,255,255,.92);
           cursor: pointer;
-          transition: all 0.2s;
+          transition: transform 0.12s ease, background 0.18s ease, border-color 0.18s ease;
         }
-        .editBtn:hover { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.4); }
+
+        .editBtn:hover {
+          background: rgba(255,255,255,0.14);
+          border-color: rgba(255,255,255,0.24);
+          transform: translateY(-1px);
+        }
+
+        .editBtn:active { transform: translateY(0px); }
 
         .deleteBtn {
-          padding: 8px 20px;
-          background: rgba(231, 76, 60, 0.2);
-          border: 1px solid rgba(231, 76, 60, 0.3);
-          border-radius: 30px;
+          padding: 8px 16px;
+          background: rgba(239, 68, 68, 0.12);
+          border: 1px solid rgba(239, 68, 68, 0.22);
+          border-radius: 999px;
           font-size: 0.9rem;
-          font-weight: 500;
-          color: #ff8a80;
+          font-weight: 800;
+          color: rgba(255, 138, 128, 0.95);
           cursor: pointer;
-          transition: all 0.2s;
+          transition: transform 0.12s ease, background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
         }
-        .deleteBtn:hover { background: rgba(231, 76, 60, 0.4); border-color: rgba(231, 76, 60, 0.6); color: white; }
+
+        .deleteBtn:hover {
+          background: rgba(239, 68, 68, 0.22);
+          border-color: rgba(239, 68, 68, 0.34);
+          color: rgba(255,255,255,.95);
+          transform: translateY(-1px);
+        }
+
+        .deleteBtn:active { transform: translateY(0px); }
 
         .loadingText, .emptyText {
           text-align: center;
-          color: rgba(255,255,255,0.7);
-          padding: 40px;
-          font-size: 1.2rem;
+          color: rgba(255,255,255,0.70);
+          padding: 36px 10px;
+          font-size: 1.05rem;
         }
 
         .paginationContainer {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-top: 24px;
+          margin-top: 18px;
           flex-wrap: wrap;
-          gap: 16px;
+          gap: 14px;
         }
 
-        .paginationControls { display: flex; gap: 12px; align-items: center; }
+        .paginationControls {
+          display: flex;
+          gap: 10px;
+          align-items: center;
+        }
 
         .pageButton {
-          padding: 10px 18px;
-          background: rgba(255,255,255,0.1);
-          border: 1px solid rgba(255,255,255,0.2);
-          border-radius: 30px;
+          padding: 10px 14px;
+          min-width: 44px;
+          background: rgba(255,255,255,0.08);
+          border: 1px solid rgba(255,255,255,0.14);
+          border-radius: 999px;
           font-size: 0.95rem;
-          color: white;
+          color: rgba(255,255,255,.92);
           cursor: pointer;
-          transition: all 0.2s;
-          min-width: 40px;
+          transition: transform 0.12s ease, background 0.18s ease, border-color 0.18s ease;
         }
 
-        .pageButton:hover:not(:disabled) {
-          background: rgba(255,255,255,0.2);
-          border-color: rgba(255,255,255,0.4);
+        .pageButton:hover {
+          background: rgba(255,255,255,0.12);
+          border-color: rgba(255,255,255,0.22);
+          transform: translateY(-1px);
         }
-        .pageButton:disabled { opacity: 0.3; cursor: not-allowed; }
 
-        .pageInfo { color: rgba(255,255,255,0.8); font-size: 0.95rem; margin: 0 12px; }
+        .pageButton:disabled {
+          opacity: 0.35;
+          cursor: not-allowed;
+          transform: none;
+        }
 
-        .rowsPerPage { display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,0.8); }
+        .pageInfo {
+          color: rgba(255,255,255,0.78);
+          font-size: 0.95rem;
+          margin: 0 8px;
+        }
+
+        .rowsPerPage {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          color: rgba(255,255,255,0.78);
+        }
+
         .rowsSelect {
-          padding: 8px 16px;
-          background: rgba(255,255,255,0.1);
-          border: 1px solid rgba(255,255,255,0.2);
-          border-radius: 30px;
-          color: white;
+          padding: 8px 14px;
+          background: rgba(255,255,255,0.08);
+          border: 1px solid rgba(255,255,255,0.14);
+          border-radius: 999px;
+          color: rgba(255,255,255,.92);
           font-size: 0.95rem;
           outline: none;
           cursor: pointer;
+          transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
         }
-        .rowsSelect option { background: #302b63; color: white; }
 
-        @media (max-width: 640px) {
-          .paginationContainer { flex-direction: column; align-items: flex-start; }
+        .rowsSelect:focus {
+          border-color: rgba(99,102,241,.40);
+          box-shadow: 0 0 0 4px rgba(99,102,241,.14);
         }
       `}</style>
 
@@ -154,15 +273,25 @@ const StudentsTableCard: React.FC<Props> = ({
                             <table className="table">
                                 <thead>
                                 <tr>
-                                    <th className="th" onClick={() => onSort("id")}>ID{sortIndicator("id")}</th>
-                                    <th className="th" onClick={() => onSort("name")}>Name{sortIndicator("name")}</th>
-                                    <th className="th"
-                                        onClick={() => onSort("email")}>Email{sortIndicator("email")}</th>
-                                    <th className="th"
-                                        onClick={() => onSort("dateOfBirth")}>Birthdate{sortIndicator("dateOfBirth")}</th>
-                                    <th className="th"
-                                        onClick={() => onSort("enrollmentDate")}>Enrollment{sortIndicator("enrollmentDate")}</th>
-                                    <th className="th" style={{cursor: "default"}}>Actions</th>
+                                    <th className="th" onClick={() => onSort("id")}>
+                                        ID{sortIndicator("id")}
+                                    </th>
+                                    <th className="th" onClick={() => onSort("name")}>
+                                        Name{sortIndicator("name")}
+                                    </th>
+                                    <th className="th" onClick={() => onSort("email")}>
+                                        Email{sortIndicator("email")}
+                                    </th>
+                                    <th className="th" onClick={() => onSort("dateOfBirth")}>
+                                        Birthdate{sortIndicator("dateOfBirth")}
+                                    </th>
+                                    <th className="th" onClick={() => onSort("enrollmentDate")}>
+                                        Enrollment{sortIndicator("enrollmentDate")}
+                                    </th>
+                                    <th className="th">Courses</th>
+                                    <th className="th" style={{ cursor: "default" }}>
+                                        Actions
+                                    </th>
                                 </tr>
                                 </thead>
 
@@ -170,15 +299,59 @@ const StudentsTableCard: React.FC<Props> = ({
                                 {currentItems.map((student) => (
                                     <tr key={student.id} className="rowHover">
                                         <td className="td">{student.id}</td>
-                                        <td className="td">{student.firstName} {student.lastName}</td>
+
+                                        <td className="td">
+                                            <span
+                                                className="studentLink"
+                                                onClick={() => student.id && onViewDetails(student.id)}
+                                                title="Open student details"
+                                            >
+                                                {student.firstName} {student.lastName}
+                                            </span>
+                                        </td>
+
                                         <td className="td">{student.email}</td>
                                         <td className="td">{student.dateOfBirth}</td>
                                         <td className="td">{student.enrollmentDate}</td>
+
                                         <td className="td">
-                                            <button className="editBtn" onClick={() => onEdit(student)}>Edit</button>
+                                            {student.courses && student.courses.length > 0 ? (
+                                                student.courses.map((course) => (
+                                                    <span key={course.id} className="courseTag">
+                                                        {course.name}
+                                                    </span>
+                                                ))
+                                            ) : (
+                                                <span style={{ opacity: 0.6 }}>No courses</span>
+                                            )}
+                                        </td>
+
+                                        <td className="td">
+                                            {student.id && (
+                                                <button
+                                                    className="detailsBtn"
+                                                    onClick={() => onViewDetails(student.id!)}
+                                                >
+                                                    Details
+                                                </button>
+                                            )}
+
+                                            <button
+                                                className="editBtn"
+                                                onClick={() => onEdit(student)}
+                                            >
+                                                Edit
+                                            </button>
+
                                             <button
                                                 className="deleteBtn"
-                                                onClick={() => onDeleteClick(student.id!, student.firstName, student.lastName)}
+                                                onClick={() =>
+                                                    onDeleteClick(
+                                                        student.id!,
+                                                        student.firstName,
+                                                        student.lastName
+                                                    )
+                                                }
                                             >
                                                 Delete
                                             </button>
@@ -192,7 +365,11 @@ const StudentsTableCard: React.FC<Props> = ({
                         <div className="paginationContainer">
                             <div className="rowsPerPage">
                                 <span>Rows per page:</span>
-                                <select className="rowsSelect" value={itemsPerPage} onChange={onItemsPerPageChange}>
+                                <select
+                                    className="rowsSelect"
+                                    value={itemsPerPage}
+                                    onChange={onItemsPerPageChange}
+                                >
                                     <option value={5}>5</option>
                                     <option value={10}>10</option>
                                     <option value={20}>20</option>
@@ -201,18 +378,40 @@ const StudentsTableCard: React.FC<Props> = ({
                             </div>
 
                             <div className="paginationControls">
-                                <button className="pageButton" onClick={() => goToPage(1)}
-                                        disabled={currentPage === 1}>«
+                                <button
+                                    className="pageButton"
+                                    onClick={() => goToPage(1)}
+                                    disabled={currentPage === 1}
+                                >
+                                    «
                                 </button>
-                                <button className="pageButton" onClick={() => goToPage(currentPage - 1)}
-                                        disabled={currentPage === 1}>‹
+
+                                <button
+                                    className="pageButton"
+                                    onClick={() => goToPage(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                >
+                                    ‹
                                 </button>
-                                <span className="pageInfo">Page {currentPage} of {totalPages}</span>
-                                <button className="pageButton" onClick={() => goToPage(currentPage + 1)}
-                                        disabled={currentPage === totalPages}>›
+
+                                <span className="pageInfo">
+                                    Page {currentPage} of {totalPages}
+                                </span>
+
+                                <button
+                                    className="pageButton"
+                                    onClick={() => goToPage(currentPage + 1)}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    ›
                                 </button>
-                                <button className="pageButton" onClick={() => goToPage(totalPages)}
-                                        disabled={currentPage === totalPages}>»
+
+                                <button
+                                    className="pageButton"
+                                    onClick={() => goToPage(totalPages)}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    »
                                 </button>
                             </div>
                         </div>
