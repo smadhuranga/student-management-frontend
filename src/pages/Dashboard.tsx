@@ -1,29 +1,33 @@
-import React, {useEffect, useState} from "react";
-import {useNavigate} from "react-router-dom";
-import {getStudents} from "../services/studentservice";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { getStudents } from "../services/studentservice";
+import { getCourses } from "../services/courseservice";
 
 import DashboardLayout from "../components/ dashboard/ DashboardLayout.tsx";
-import DashboardHeader from "../components/ dashboard/ DashboardHeader.tsx";
-import DashboardStats from "../components/ dashboard/ DashboardStats.tsx";
+import DashboardHeader from "../components/ dashboard/ DashboardHeader";
+import DashboardStats from "../components/ dashboard/ DashboardStats";
 
 const Dashboard: React.FC = () => {
     const navigate = useNavigate();
     const [totalStudents, setTotalStudents] = useState(0);
+    const [totalCourses, setTotalCourses] = useState(0);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         (async () => {
-            await loadStudents();
+            await loadData();
         })();
     }, []);
 
-    const loadStudents = async () => {
+    const loadData = async () => {
         setLoading(true);
         try {
             const students = await getStudents();
+            const courses = await getCourses();
             setTotalStudents(students.length);
+            setTotalCourses(courses.length);
         } catch (error) {
-            console.error("Failed to load students", error);
+            console.error("Failed to load dashboard data", error);
         } finally {
             setLoading(false);
         }
@@ -36,15 +40,17 @@ const Dashboard: React.FC = () => {
 
     return (
         <DashboardLayout>
-            <DashboardHeader/>
+            <DashboardHeader />
 
             <DashboardStats
                 totalStudents={totalStudents}
+                totalCourses={totalCourses}
                 loading={loading}
                 onManageStudents={() => navigate("/students")}
+                onManageCourses={() => navigate("/courses")}
             />
 
-            <div style={{display: "flex", justifyContent: "center"}}>
+            <div style={{ display: "flex", justifyContent: "center" }}>
                 <button
                     onClick={handleLogout}
                     style={{

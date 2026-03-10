@@ -13,86 +13,118 @@ const DeleteConfirmModal: React.FC<Props> = ({show, studentName, onCancel, onCon
     return (
         <>
             <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap');
+
         .modalOverlay {
           position: fixed;
           top: 0;
           left: 0;
           right: 0;
           bottom: 0;
-          background: rgba(0,0,0,0.3);
-          backdrop-filter: blur(12px);
+
+          background: rgba(0,0,0,0.40);
+          backdrop-filter: blur(14px);
+          -webkit-backdrop-filter: blur(14px);
+
           display: flex;
           justify-content: center;
           align-items: center;
+
           z-index: 1000;
-          animation: fadeIn 0.2s ease;
+          animation: fadeIn 0.18s ease;
+          padding: 18px;
+          box-sizing: border-box;
         }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .modal {
-          background: rgba(255,255,255,0.1);
-          backdrop-filter: blur(24px);
-          -webkit-backdrop-filter: blur(24px);
-          border: 1px solid rgba(255,255,255,0.2);
-          border-radius: 48px;
-          padding: 40px;
-          max-width: 420px;
-          width: 90%;
-          box-shadow: 0 40px 80px rgba(0,0,0,0.5);
-          color: white;
+          width: 100%;
+          max-width: 460px;
+
+          background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
+          backdrop-filter: blur(22px);
+          -webkit-backdrop-filter: blur(22px);
+
+          border: 1px solid rgba(255,255,255,0.14);
+          border-radius: 28px;
+
+          padding: 28px;
+
+          box-shadow: 0 40px 90px rgba(0,0,0,0.55);
+          color: rgba(255,255,255,.92);
         }
 
         .modalTitle {
-          font-size: 2rem;
-          font-weight: 600;
+          font-family: 'Poppins', sans-serif;
+          font-size: 1.6rem;
+          font-weight: 700;
           margin-top: 0;
-          margin-bottom: 16px;
+          margin-bottom: 10px;
+          letter-spacing: -0.01em;
         }
 
         .modalText {
-          font-size: 1.1rem;
-          margin-bottom: 32px;
+          font-family: 'Inter', sans-serif;
+          font-size: 1.05rem;
+          margin-bottom: 22px;
           line-height: 1.6;
-          color: rgba(255,255,255,0.9);
+          color: rgba(255,255,255,0.86);
         }
 
         .modalActions {
           display: flex;
           justify-content: flex-end;
-          gap: 16px;
+          gap: 12px;
+          flex-wrap: wrap;
         }
 
         .modalCancelBtn {
-          padding: 14px 28px;
-          background: rgba(255,255,255,0.1);
-          border: 1px solid rgba(255,255,255,0.2);
-          border-radius: 40px;
-          font-size: 1rem;
-          font-weight: 500;
-          color: white;
+          padding: 12px 18px;
+
+          background: rgba(255,255,255,0.08);
+          border: 1px solid rgba(255,255,255,0.14);
+          border-radius: 999px;
+
+          font-size: 0.98rem;
+          font-weight: 700;
+          color: rgba(255,255,255,.92);
+
           cursor: pointer;
-          transition: all 0.2s;
+          transition: transform 0.12s ease, background 0.18s ease, border-color 0.18s ease;
         }
 
-        .modalCancelBtn:hover { background: rgba(255,255,255,0.2); }
+        .modalCancelBtn:hover {
+          background: rgba(255,255,255,0.12);
+          border-color: rgba(255,255,255,0.22);
+          transform: translateY(-1px);
+        }
 
         .modalConfirmBtn {
-          padding: 14px 32px;
-          background: linear-gradient(145deg, #e74c3c, #c0392b);
+          padding: 12px 20px;
+
+          background: linear-gradient(135deg, rgba(239,68,68,0.95), rgba(185,28,28,0.95));
           border: none;
-          border-radius: 40px;
-          font-size: 1rem;
-          font-weight: 600;
+          border-radius: 999px;
+
+          font-size: 0.98rem;
+          font-weight: 800;
           color: white;
+
           cursor: pointer;
-          transition: all 0.2s;
-          box-shadow: 0 10px 20px rgba(231,76,60,0.3);
+          transition: transform 0.12s ease, filter 0.18s ease, box-shadow 0.18s ease;
+          box-shadow: 0 14px 30px rgba(239,68,68,0.22);
         }
 
         .modalConfirmBtn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 15px 30px rgba(231,76,60,0.5);
+          transform: translateY(-1px);
+          filter: brightness(1.04);
+          box-shadow: 0 18px 42px rgba(239,68,68,0.28);
+        }
+
+        .modalConfirmBtn:active,
+        .modalCancelBtn:active {
+          transform: translateY(0px);
         }
       `}</style>
 
