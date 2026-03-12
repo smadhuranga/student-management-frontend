@@ -11,14 +11,12 @@ import {
 } from "../services/studentservice";
 import { getCourses } from "../services/courseservice";
 import { useNavigate } from "react-router-dom";
-
 import StudentsLayout from "../components/students/StudentsLayout";
 import StudentsHeader from "../components/students/StudentsHeader";
 import StudentFormCard from "../components/students/StudentFormCard";
 import StudentsSearchBar from "../components/students/StudentsSearchBar";
 import StudentsTableCard from "../components/students/StudentsTableCard";
 import DeleteConfirmModal from "../components/students/DeleteConfirmModal";
-
 import { getCoursesByStudent } from "../services/enrollmentservice";
 
 const Students: React.FC = () => {
