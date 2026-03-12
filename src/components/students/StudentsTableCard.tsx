@@ -311,8 +311,8 @@ const StudentsTableCard: React.FC<Props> = ({
                                         </td>
 
                                         <td className="td">{student.email}</td>
-                                        <td className="td">{student.dateOfBirth}</td>
-                                        <td className="td">{student.enrollmentDate}</td>
+                                        <td className="td">{String(student.dateOfBirth).split("T")[0]}</td>
+                                        <td className="td">{String(student.enrollmentDate).split("T")[0]}</td>
 
                                         <td className="td">
                                             {student.courses && student.courses.length > 0 ? (
@@ -322,7 +322,7 @@ const StudentsTableCard: React.FC<Props> = ({
                                                     </span>
                                                 ))
                                             ) : (
-                                                <span style={{ opacity: 0.6 }}>No courses</span>
+                                                <span style={{opacity: 0.6}}>No courses</span>
                                             )}
                                         </td>
 
