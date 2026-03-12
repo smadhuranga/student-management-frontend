@@ -102,10 +102,10 @@ const LoginCard: React.FC<Props> = ({
                 <span style={styles.buttonShimmer}/>
             </button>
 
-            <div style={styles.footer}>
-                <span style={styles.footerText}>Tip:</span>{" "}
-                <span style={styles.footerMuted}>Press Enter to sign in faster.</span>
-            </div>
+            {/*<div style={styles.footer}>*/}
+            {/*    <span style={styles.footerText}>Tip:</span>{" "}*/}
+            {/*    <span style={styles.footerMuted}>Press Enter to sign in faster.</span>*/}
+            {/*</div>*/}
         </div>
     );
 };
