@@ -8,6 +8,7 @@ type Props = {
     onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
     onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
     onCancelEdit?: () => void;
+    validationErrors?: string[]; // new prop
 };
 
 const CourseFormCard: React.FC<Props> = ({
@@ -17,7 +18,17 @@ const CourseFormCard: React.FC<Props> = ({
                                              onChange,
                                              onSubmit,
                                              onCancelEdit,
+                                             validationErrors = [], // default empty
                                          }) => {
+    // Helper to get field error state
+    const hasError = (fieldName: string) => validationErrors.includes(fieldName);
+
+    // Human readable field names
+    const fieldLabels: Record<string, string> = {
+        courseName: "Course name",
+        courseCode: "Course code",
+    };
+
     return (
         <>
             <style>{`
@@ -140,6 +151,7 @@ const CourseFormCard: React.FC<Props> = ({
     color: #94a3b8;
   }
 
+  /* Base input styles */
   .cfInput, .cfTextarea {
     width: 95%;
     border-radius: 40px;
@@ -148,14 +160,24 @@ const CourseFormCard: React.FC<Props> = ({
     color: #fff;
     padding: 12px 16px;
     outline: none;
-    transition: border-color 0.2s ease, background 0.2s ease;
+    transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
   }
   .cfInput:focus, .cfTextarea:focus {
     border-color: #60a5fa;
     background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.15);
   }
   .cfInput::placeholder, .cfTextarea::placeholder {
     color: rgba(255, 255, 255, 0.3);
+  }
+
+  /* Error state for inputs */
+  .cfInputError {
+    border-color: #ef4444 !important;
+    background: rgba(239, 68, 68, 0.05) !important;
+  }
+  .cfInputError:focus {
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
   }
 
   .cfTextarea {
@@ -210,6 +232,24 @@ const CourseFormCard: React.FC<Props> = ({
     cursor: not-allowed;
   }
 
+  /* Validation summary box */
+  .cfErrorSummary {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 16px;
+    padding: 12px 16px;
+    margin-top: 8px;
+    color: #f87171;
+    font-size: 0.9rem;
+  }
+  .cfErrorSummary ul {
+    margin: 8px 0 0 0;
+    padding-left: 20px;
+  }
+  .cfErrorSummary li {
+    margin: 4px 0;
+  }
+
   @media (max-width: 720px) {
     .cfFieldGrid {
       grid-template-columns: 1fr;
@@ -253,7 +293,7 @@ const CourseFormCard: React.FC<Props> = ({
                                 <div className="cfHint">Required</div>
                             </div>
                             <input
-                                className="cfInput"
+                                className={`cfInput ${hasError("courseName") ? "cfInputError" : ""}`}
                                 name="courseName"
                                 placeholder="e.g. Advanced Web Development"
                                 value={formData.courseName}
@@ -268,7 +308,7 @@ const CourseFormCard: React.FC<Props> = ({
                                 <div className="cfHint">Required</div>
                             </div>
                             <input
-                                className="cfInput"
+                                className={`cfInput ${hasError("courseCode") ? "cfInputError" : ""}`}
                                 name="courseCode"
                                 placeholder="e.g. CSE101"
                                 value={formData.courseCode}
@@ -291,6 +331,18 @@ const CourseFormCard: React.FC<Props> = ({
                             onChange={onChange}
                         />
                     </div>
+
+                    {/* Validation summary */}
+                    {validationErrors.length > 0 && (
+                        <div className="cfErrorSummary">
+                            <strong>Please fill in the required fields:</strong>
+                            <ul>
+                                {validationErrors.map(field => (
+                                    <li key={field}>{fieldLabels[field] || field}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
 
                     <div className="cfActions">
                         <button type="submit" className="cfBtn cfPrimary" disabled={loading}>

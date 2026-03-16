@@ -11,8 +11,9 @@ type Props = {
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onEmailChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onSubmit: (e: React.FormEvent) => void;
-    // New prop: receives full array of selected course IDs
     onCourseIdsChange: (selectedIds: number[]) => void;
+    validationErrors?: string[];
+    errorMessages?: string[];
 };
 
 const StudentFormCard: React.FC<Props> = ({
@@ -24,6 +25,8 @@ const StudentFormCard: React.FC<Props> = ({
                                               onEmailChange,
                                               onSubmit,
                                               onCourseIdsChange,
+                                              validationErrors = [],
+                                              errorMessages = [],
                                           }) => {
     // State for dropdown open/close and pagination
     const [isOpen, setIsOpen] = useState(false);
@@ -53,6 +56,8 @@ const StudentFormCard: React.FC<Props> = ({
     const buttonText = selectedCount === 0
         ? "Select courses"
         : `${selectedCount} course${selectedCount > 1 ? 's' : ''} selected`;
+
+    const hasError = (fieldName: string) => validationErrors.includes(fieldName);
 
     return (
         <>
@@ -133,6 +138,15 @@ const StudentFormCard: React.FC<Props> = ({
 
         .input[type="date"] {
           color-scheme: dark;
+        }
+
+        /* Error state for inputs */
+        .inputError {
+          border-color: #ef4444 !important;
+          background: rgba(239, 68, 68, 0.05) !important;
+        }
+        .inputError:focus {
+          box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15) !important;
         }
 
         /* Dropdown container */
@@ -287,6 +301,24 @@ const StudentFormCard: React.FC<Props> = ({
           cursor: not-allowed;
         }
 
+        /* Error summary box */
+        .errorSummary {
+          background: rgba(239, 68, 68, 0.1);
+          border: 1px solid rgba(239, 68, 68, 0.3);
+          border-radius: 16px;
+          padding: 12px 16px;
+          margin: 8px 0;
+          color: #f87171;
+          font-size: 0.9rem;
+        }
+        .errorSummary ul {
+          margin: 8px 0 0 0;
+          padding-left: 20px;
+        }
+        .errorSummary li {
+          margin: 4px 0;
+        }
+
         @media (max-width: 900px) {
           .card { padding: 24px; border-radius: 32px; }
           .primaryButton { width: 50%; }
@@ -314,7 +346,7 @@ const StudentFormCard: React.FC<Props> = ({
                             value={formData.firstName}
                             onChange={onChange}
                             required
-                            className="input"
+                            className={`input ${hasError('firstName') ? 'inputError' : ''}`}
                         />
 
                         <input
@@ -323,7 +355,7 @@ const StudentFormCard: React.FC<Props> = ({
                             value={formData.lastName}
                             onChange={onChange}
                             required
-                            className="input"
+                            className={`input ${hasError('lastName') ? 'inputError' : ''}`}
                         />
                     </div>
 
@@ -334,7 +366,7 @@ const StudentFormCard: React.FC<Props> = ({
                         value={formData.email}
                         onChange={onEmailChange}
                         required
-                        className="input"
+                        className={`input ${hasError('email') ? 'inputError' : ''}`}
                     />
 
                     <div className="row">
@@ -344,7 +376,7 @@ const StudentFormCard: React.FC<Props> = ({
                             value={formData.dateOfBirth}
                             onChange={onChange}
                             required
-                            className="input"
+                            className={`input ${hasError('dateOfBirth') ? 'inputError' : ''}`}
                         />
 
                         <input
@@ -353,7 +385,7 @@ const StudentFormCard: React.FC<Props> = ({
                             value={formData.enrollmentDate}
                             onChange={onChange}
                             required
-                            className="input"
+                            className={`input ${hasError('enrollmentDate') ? 'inputError' : ''}`}
                         />
                     </div>
 
@@ -412,6 +444,17 @@ const StudentFormCard: React.FC<Props> = ({
                             </div>
                         )}
                     </div>
+
+                    {errorMessages.length > 0 && (
+                        <div className="errorSummary">
+                            <strong>Please fix the following errors:</strong>
+                            <ul>
+                                {errorMessages.map((msg, idx) => (
+                                    <li key={idx}>{msg}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
 
                     <button type="submit" className="primaryButton" disabled={loading}>
                         {loading ? "Processing..." : editingId ? "Update Student" : "Add Student"}

@@ -52,6 +52,10 @@ const Students: React.FC = () => {
     const [sortColumn, setSortColumn] = useState<string>("id");
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
+    // Validation states
+    const [validationErrors, setValidationErrors] = useState<string[]>([]);
+    const [errorMessages, setErrorMessages] = useState<string[]>([]);
+
     useEffect(() => {
         (async () => {
             await loadCourses();
@@ -116,10 +120,16 @@ const Students: React.FC = () => {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+        // Clear all validation errors when user types
+        setValidationErrors([]);
+        setErrorMessages([]);
     };
 
     const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({ ...formData, email: e.target.value.toLowerCase() });
+        const value = e.target.value.toLowerCase();
+        setFormData({ ...formData, email: value });
+        setValidationErrors([]);
+        setErrorMessages([]);
     };
 
     const resetForm = () => {
@@ -133,21 +143,49 @@ const Students: React.FC = () => {
             courses: [],
         });
         setEditingId(null);
+        setValidationErrors([]);
+        setErrorMessages([]);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        const fieldErrors: string[] = [];
+        const messages: string[] = [];
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        if (!emailRegex.test(formData.email)) {
-            await Swal.fire({
-                icon: "error",
-                title: "Invalid Email",
-                text: "Please enter a valid email address (e.g., name@example.com).",
-            });
+
+        if (!formData.firstName.trim()) {
+            fieldErrors.push('firstName');
+            messages.push('First name is required');
+        }
+        if (!formData.lastName.trim()) {
+            fieldErrors.push('lastName');
+            messages.push('Last name is required');
+        }
+        if (!formData.email.trim()) {
+            fieldErrors.push('email');
+            messages.push('Email is required');
+        } else if (!emailRegex.test(formData.email)) {
+            fieldErrors.push('email');
+            messages.push('Please enter a valid email address');
+        }
+        if (!formData.dateOfBirth) {
+            fieldErrors.push('dateOfBirth');
+            messages.push('Date of birth is required');
+        }
+        if (!formData.enrollmentDate) {
+            fieldErrors.push('enrollmentDate');
+            messages.push('Enrollment date is required');
+        }
+
+        if (fieldErrors.length > 0) {
+            setValidationErrors(fieldErrors);
+            setErrorMessages(messages);
             return;
         }
 
+        setValidationErrors([]);
+        setErrorMessages([]);
         setLoading(true);
 
         try {
@@ -214,6 +252,8 @@ const Students: React.FC = () => {
         });
 
         setEditingId(student.id || null);
+        setValidationErrors([]);
+        setErrorMessages([]);
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
@@ -352,6 +392,8 @@ const Students: React.FC = () => {
                 onEmailChange={handleEmailChange}
                 onSubmit={handleSubmit}
                 onCourseIdsChange={handleCourseIdsChange}
+                validationErrors={validationErrors}
+                errorMessages={errorMessages}
             />
 
             <StudentsSearchBar

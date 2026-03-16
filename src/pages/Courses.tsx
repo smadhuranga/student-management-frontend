@@ -7,7 +7,7 @@ import {
     deleteCourse,
     getCourses,
     updateCourse,
-    getCourseStudents,  // <-- import to fetch enrolled students
+    getCourseStudents,
 } from "../services/courseservice";
 
 import CourseFormCard from "../components/courses/CourseFormCard";
@@ -27,8 +27,8 @@ const Courses: React.FC = () => {
     });
 
     const [loading, setLoading] = useState(false);
-    // State to store enrollment counts per course
     const [enrollmentCounts, setEnrollmentCounts] = useState<Record<number, number>>({});
+    const [validationErrors, setValidationErrors] = useState<string[]>([]); // Track empty required fields
 
     const [deleteModal, setDeleteModal] = useState<{
         show: boolean;
@@ -44,7 +44,6 @@ const Courses: React.FC = () => {
         void loadCourses();
     }, []);
 
-    // Fetch enrollment counts for all courses
     const loadEnrollmentCounts = async (coursesList: Course[]) => {
         const counts: Record<number, number> = {};
         await Promise.all(
@@ -67,7 +66,7 @@ const Courses: React.FC = () => {
         try {
             const data = await getCourses();
             setCourses(data);
-            await loadEnrollmentCounts(data); // fetch counts after courses are loaded
+            await loadEnrollmentCounts(data);
         } catch (e) {
             console.error(e);
             Swal.fire("Error", "Failed to load courses", "error");
@@ -81,26 +80,31 @@ const Courses: React.FC = () => {
     ) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
+
+        // Remove validation error for this field if it exists
+        setValidationErrors((prev) => prev.filter(field => field !== name));
     };
 
     const resetForm = () => {
         setFormData({ courseName: "", courseCode: "", description: "" });
         setEditingId(null);
+        setValidationErrors([]);
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        if (formData.courseName.trim() === "") {
-            Swal.fire("Validation Error", "Course name required", "error");
-            return;
+        // Check required fields
+        const errors: string[] = [];
+        if (!formData.courseName.trim()) errors.push("courseName");
+        if (!formData.courseCode.trim()) errors.push("courseCode");
+
+        if (errors.length > 0) {
+            setValidationErrors(errors);
+            return; // Stop submission
         }
 
-        if (formData.courseCode.trim() === "") {
-            Swal.fire("Validation Error", "Course code required", "error");
-            return;
-        }
-
+        setValidationErrors([]);
         setLoading(true);
         try {
             if (editingId) {
@@ -112,7 +116,7 @@ const Courses: React.FC = () => {
             }
 
             resetForm();
-            await loadCourses(); // reload courses and counts
+            await loadCourses();
         } catch (error) {
             console.error("Course operation failed:", error);
             Swal.fire("Error", "Course operation failed", "error");
@@ -129,6 +133,7 @@ const Courses: React.FC = () => {
             description: course.description ?? "",
         });
         setEditingId(course.id ?? null);
+        setValidationErrors([]);
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
@@ -150,7 +155,7 @@ const Courses: React.FC = () => {
                 resetForm();
             }
 
-            await loadCourses(); // reload courses and counts
+            await loadCourses();
         } catch (e) {
             console.error(e);
             Swal.fire("Error", "Failed to delete course", "error");
@@ -173,7 +178,6 @@ const Courses: React.FC = () => {
     font-family: 'Inter', sans-serif;
   }
 
-  /* subtle animated blobs (background effect) */
   .page::before {
     content: '';
     position: absolute;
@@ -289,11 +293,6 @@ const Courses: React.FC = () => {
                                 Create, update, delete, and manage enrollments for courses.
                             </p>
                         </div>
-
-                        {/*<span className="statusPill" title="UI state">*/}
-                        {/*    <span className={`dot ${loading ? "dotLive" : ""}`}/>*/}
-                        {/*    {loading ? "Working…" : "Ready"}*/}
-                        {/*</span>*/}
                     </div>
 
                     <DeleteCourseModal
@@ -320,6 +319,7 @@ const Courses: React.FC = () => {
                         onChange={handleChange}
                         onSubmit={handleSubmit}
                         onCancelEdit={resetForm}
+                        validationErrors={validationErrors} // Pass errors down
                     />
 
                     <CoursesTableCard
@@ -328,7 +328,7 @@ const Courses: React.FC = () => {
                         onEdit={handleEdit}
                         onDeleteClick={handleDeleteClick}
                         onManageEnrollments={(course) => setSelectedCourseForEnrollment(course)}
-                        enrollmentCounts={enrollmentCounts}  // <-- new prop
+                        enrollmentCounts={enrollmentCounts}
                     />
                 </div>
             </div>
