@@ -184,324 +184,366 @@ const CourseEnrollmentModal: React.FC<Props> = ({
     return (
         <>
             <style>{`
-        .cemOverlay{
-          position: fixed;
-          inset: 0;
-          background: rgba(0,0,0,.66);
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          padding: 20px;
-          z-index: 70;
-        }
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-        .cemModal{
-          width: min(1080px, 100%);
-          max-height: 90vh;
-          overflow: auto;
-          border-radius: 20px;
-          padding: 20px;
-          background: linear-gradient(180deg, rgba(17,24,39,.95), rgba(15,23,42,.92));
-          border: 1px solid rgba(255,255,255,.12);
-          box-shadow: 0 24px 70px rgba(0,0,0,.4);
-          color: rgba(255,255,255,.92);
-        }
+  .cemOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 70;
+    animation: fadeIn 0.2s ease-out;
+  }
 
-        .cemHeader{
-          display:flex;
-          justify-content:space-between;
-          gap:12px;
-          align-items:flex-start;
-          margin-bottom: 18px;
-        }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
 
-        .cemTitle{
-          margin:0;
-          font-size: 22px;
-          font-weight: 700;
-        }
+  .cemModal {
+    width: min(1080px, 100%);
+    max-height: 90vh;
+    overflow: auto;
+    border-radius: 48px;
+    padding: 24px;
+    background: rgba(17, 25, 40, 0.6);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255,255,255,0.05);
+    color: #fff;
+    animation: slideUp 0.3s ease-out;
+  }
 
-        .cemSub{
-          margin:6px 0 0 0;
-          color: rgba(255,255,255,.68);
-          font-size: 13px;
-          line-height: 1.6;
-        }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
-        .cemCourseMeta{
-          display:flex;
-          flex-wrap:wrap;
-          gap:10px;
-          margin-top: 10px;
-        }
+  .cemHeader {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 18px;
+  }
 
-        .cemBadge{
-          display:inline-flex;
-          align-items:center;
-          gap:8px;
-          padding: 7px 12px;
-          border-radius: 999px;
-          background: rgba(255,255,255,.06);
-          border: 1px solid rgba(255,255,255,.12);
-          color: rgba(255,255,255,.84);
-          font-size: 12px;
-          font-weight: 600;
-        }
+  .cemTitle {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.02em;
+  }
 
-        .cemClose{
-          border: 1px solid rgba(255,255,255,.14);
-          background: rgba(255,255,255,.06);
-          color: white;
-          border-radius: 999px;
-          padding: 10px 14px;
-          cursor: pointer;
-        }
+  .cemSub {
+    margin: 6px 0 0 0;
+    color: #94a3b8;
+    font-size: 13px;
+    line-height: 1.6;
+  }
 
-        .cemStack{
-          display:grid;
-          grid-template-columns: 1fr;
-          gap: 18px;
-        }
+  .cemCourseMeta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+  }
 
-        .cemCard{
-          border-radius: 18px;
-          padding: 16px;
-          background: rgba(255,255,255,.04);
-          border: 1px solid rgba(255,255,255,.10);
-        }
+  .cemBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    color: #e2e8f0;
+    font-size: 12px;
+    font-weight: 500;
+  }
 
-        .cemCardTitle{
-          margin:0 0 12px 0;
-          font-size: 16px;
-          font-weight: 700;
-        }
+  .cemClose {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    color: #fff;
+    border-radius: 999px;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  .cemClose:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+  }
 
-        .cemEnrollGrid{
-          display:grid;
-          grid-template-columns: minmax(0, 1fr) 220px;
-          gap: 12px;
-          align-items:end;
-        }
+  .cemStack {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
 
-        .cemLabel{
-          display:block;
-          margin-bottom: 8px;
-          font-size: 13px;
-          color: rgba(255,255,255,.76);
-        }
+  .cemCard {
+    border-radius: 32px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.5);
+  }
 
-        .cemSelect{
-          width:100%;
-          border-radius: 14px;
-          border: 1px solid rgba(255,255,255,.14);
-          background: rgba(255,255,255,.06);
-          color: white;
-          padding: 12px;
-          outline: none;
-        }
+  .cemCardTitle {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #e2e8f0;
+  }
 
-        .cemSelect option{
-          background: #0f172a;
-          color: white;
-        }
+  .cemEnrollGrid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 220px;
+    gap: 12px;
+    align-items: end;
+  }
 
-        .cemBtn{
-          border: 0;
-          border-radius: 999px;
-          padding: 11px 14px;
-          cursor:pointer;
-          font-weight:700;
-          color:white;
-          background: linear-gradient(135deg, #6366f1, #2563eb);
-          width: 100%;
-        }
+  .cemLabel {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: #94a3b8;
+  }
 
-        .cemBtn[disabled]{
-          opacity:.6;
-          cursor:not-allowed;
-        }
+  .cemSelect {
+    width: 100%;
+    border-radius: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    color: #fff;
+    padding: 12px 16px;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+  .cemSelect:focus {
+    border-color: #60a5fa;
+  }
+  .cemSelect option {
+    background: #0b1120;
+    color: #fff;
+  }
 
-        .cemTableTopbar{
-          display:flex;
-          justify-content:space-between;
-          align-items:center;
-          gap:12px;
-          flex-wrap:wrap;
-          margin-bottom: 12px;
-        }
+  .cemBtn {
+    border: 0;
+    border-radius: 40px;
+    padding: 12px 16px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(135deg, #475569 0%, #1e293b 100%);
+    transition: all 0.2s ease;
+    box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.4);
+    width: 100%;
+  }
+  .cemBtn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #5f6b7a, #2d3748);
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px -8px rgba(0, 0, 0, 0.5);
+  }
+  .cemBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 
-        .cemTableMeta{
-          color: rgba(255,255,255,.72);
-          font-size: 13px;
-        }
+  .cemTableTopbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
 
-        .cemRowsWrap{
-          display:flex;
-          align-items:center;
-          gap:10px;
-          color: rgba(255,255,255,.76);
-          font-size: 13px;
-        }
+  .cemTableMeta {
+    color: #94a3b8;
+    font-size: 13px;
+  }
 
-        .cemRowsSelect{
-          color-scheme: dark;
-          background: rgba(255,255,255,.06);
-          border: 1px solid rgba(255,255,255,.14);
-          color: white;
-          border-radius: 999px;
-          padding: 8px 12px;
-          outline: none;
-          cursor: pointer;
-        }
+  .cemRowsWrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #94a3b8;
+    font-size: 13px;
+  }
 
-        .cemRowsSelect option{
-          background: #0f172a;
-          color: white;
-        }
+  .cemRowsSelect {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-radius: 999px;
+    padding: 8px 12px;
+    outline: none;
+    cursor: pointer;
+  }
+  .cemRowsSelect option {
+    background: #0b1120;
+    color: #fff;
+  }
 
-        .cemTableWrap{
-          overflow:auto;
-          border: 1px solid rgba(255,255,255,.1);
-          border-radius: 16px;
-        }
+  .cemTableWrap {
+    overflow: auto;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.02);
+  }
 
-        .cemTable{
-          width:100%;
-          border-collapse: collapse;
-          min-width: 760px;
-          table-layout: fixed;
-        }
+  .cemTable {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 760px;
+    table-layout: fixed;
+  }
 
-        .cemTable col:nth-child(1){ width: 28%; }
-        .cemTable col:nth-child(2){ width: 34%; }
-        .cemTable col:nth-child(3){ width: 20%; }
-        .cemTable col:nth-child(4){ width: 18%; }
+  .cemTable col:nth-child(1) { width: 28%; }
+  .cemTable col:nth-child(2) { width: 34%; }
+  .cemTable col:nth-child(3) { width: 20%; }
+  .cemTable col:nth-child(4) { width: 18%; }
 
-        .cemTable th,
-        .cemTable td{
-          padding: 12px 14px;
-          border-bottom: 1px solid rgba(255,255,255,.08);
-          text-align: left;
-          vertical-align: middle;
-        }
+  .cemTable th,
+  .cemTable td {
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    text-align: left;
+    vertical-align: middle;
+  }
 
-        .cemTable th{
-          background: rgba(255,255,255,.05);
-          color: rgba(255,255,255,.75);
-          text-transform: uppercase;
-          font-size: 12px;
-          letter-spacing: .04em;
-          white-space: nowrap;
-        }
+  .cemTable th {
+    background: rgba(255, 255, 255, 0.03);
+    color: #94a3b8;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    font-weight: 600;
+  }
 
-        .cemSortBtn{
-          all: unset;
-          cursor: pointer;
-          display:inline-flex;
-          align-items:center;
-          gap: 6px;
-        }
+  .cemSortBtn {
+    all: unset;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #94a3b8;
+    transition: color 0.2s ease;
+  }
+  .cemSortBtn:hover {
+    color: #fff;
+  }
 
-        .cemSortBtn:hover{
-          color: rgba(255,255,255,.92);
-        }
+  .cemStudentName {
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.4;
+  }
 
-        .cemStudentName{
-          font-weight: 700;
-          color: rgba(255,255,255,.95);
-          line-height: 1.4;
-          word-break: break-word;
-        }
+  .cemEmail {
+    color: #cbd5e1;
+    line-height: 1.45;
+    word-break: break-word;
+  }
 
-        .cemEmail{
-          color: rgba(255,255,255,.84);
-          line-height: 1.45;
-          white-space: normal;
-          overflow-wrap: anywhere;
-          word-break: break-word;
-        }
+  .cemDate {
+    color: #94a3b8;
+    white-space: nowrap;
+  }
 
-        .cemDate{
-          color: rgba(255,255,255,.84);
-          white-space: nowrap;
-        }
+  .cemActionBtn {
+    border: 0;
+    border-radius: 999px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+    transition: all 0.2s ease;
+    box-shadow: 0 8px 20px -6px rgba(239, 68, 68, 0.3);
+  }
+  .cemActionBtn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px -6px rgba(239, 68, 68, 0.4);
+  }
+  .cemActionBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 
-        .cemActionCell{
-          white-space: nowrap;
-        }
+  .cemFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
 
-        .cemActionBtn{
-          border: 0;
-          border-radius: 999px;
-          padding: 8px 12px;
-          cursor:pointer;
-          font-weight:700;
-          color:white;
-          background: linear-gradient(135deg, #ef4444, #b91c1c);
-        }
+  .cemRange {
+    color: #94a3b8;
+    font-size: 12px;
+  }
 
-        .cemActionBtn[disabled]{
-          opacity:.6;
-          cursor:not-allowed;
-        }
+  .cemPager {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
 
-        .cemFooter{
-          display:flex;
-          justify-content:space-between;
-          align-items:center;
-          gap: 12px;
-          flex-wrap: wrap;
-          margin-top: 12px;
-        }
+  .cemPageBtn {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    color: #e2e8f0;
+    border-radius: 999px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+  .cemPageBtn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+  }
+  .cemPageBtn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
 
-        .cemRange{
-          color: rgba(255,255,255,.70);
-          font-size: 12px;
-        }
+  .cemPageBtnActive {
+    border-color: #60a5fa;
+    background: rgba(96, 165, 250, 0.15);
+  }
 
-        .cemPager{
-          display:flex;
-          gap: 8px;
-          align-items:center;
-          flex-wrap: wrap;
-        }
+  .cemEmpty {
+    color: #94a3b8;
+    font-size: 14px;
+    padding: 8px 0;
+  }
 
-        .cemPageBtn{
-          border: 1px solid rgba(255,255,255,.14);
-          background: rgba(255,255,255,.06);
-          color: rgba(255,255,255,.86);
-          border-radius: 999px;
-          padding: 8px 12px;
-          cursor:pointer;
-          font-weight: 700;
-          transition: transform .08s ease, opacity .15s ease, background .15s ease;
-        }
-
-        .cemPageBtn:active{ transform: translateY(1px); }
-        .cemPageBtn[disabled]{ opacity:.55; cursor:not-allowed; }
-
-        .cemPageBtnActive{
-          border-color: rgba(99,102,241,.55);
-          background: rgba(99,102,241,.14);
-        }
-
-        .cemEmpty{
-          color: rgba(255,255,255,.7);
-          font-size: 14px;
-          padding: 8px 0;
-        }
-
-        @media (max-width: 860px){
-          .cemModal{
-            width: min(100%, 100%);
-            padding: 16px;
-          }
-
-          .cemEnrollGrid{
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
+  @media (max-width: 860px) {
+    .cemEnrollGrid {
+      grid-template-columns: 1fr;
+    }
+  }
+`}</style>
 
             <div className="cemOverlay">
                 <div className="cemModal">
@@ -574,7 +616,7 @@ const CourseEnrollmentModal: React.FC<Props> = ({
                             </div>
 
                             {availableStudents.length === 0 && (
-                                <p className="cemEmpty" style={{ marginTop: 10 }}>
+                                <p className="cemEmpty" style={{marginTop: 10}}>
                                     No available students to enroll.
                                 </p>
                             )}
@@ -583,7 +625,7 @@ const CourseEnrollmentModal: React.FC<Props> = ({
                         <div className="cemCard">
                             <div className="cemTableTopbar">
                                 <div>
-                                    <h3 className="cemCardTitle" style={{ marginBottom: 4 }}>
+                                    <h3 className="cemCardTitle" style={{marginBottom: 4}}>
                                         Enrolled Students
                                     </h3>
                                     <div className="cemTableMeta">
@@ -615,10 +657,10 @@ const CourseEnrollmentModal: React.FC<Props> = ({
                                     <div className="cemTableWrap">
                                         <table className="cemTable">
                                             <colgroup>
-                                                <col />
-                                                <col />
-                                                <col />
-                                                <col />
+                                                <col/>
+                                                <col/>
+                                                <col/>
+                                                <col/>
                                             </colgroup>
                                             <thead>
                                             <tr>

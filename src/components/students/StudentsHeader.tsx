@@ -9,7 +9,7 @@ const StudentsHeader: React.FC<Props> = ({title = "🎓 Student Portal", onBack}
     return (
         <>
             <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap');
 
         .header {
           display: flex;
@@ -22,8 +22,7 @@ const StudentsHeader: React.FC<Props> = ({title = "🎓 Student Portal", onBack}
           gap: 14px;
           position: relative;
           z-index: 10;
-          padding-left: 36px;
-          padding-right: 36px;
+          padding: 0 36px;
           box-sizing: border-box;
         }
 
@@ -31,42 +30,39 @@ const StudentsHeader: React.FC<Props> = ({title = "🎓 Student Portal", onBack}
           font-family: 'Poppins', sans-serif;
           font-size: 2.35rem;
           font-weight: 700;
-          color: rgba(255,255,255,.95);
+          background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
           margin: 0;
           letter-spacing: -0.02em;
-          text-shadow: 0 10px 28px rgba(0,0,0,.35);
+          text-shadow: 0 4px 20px rgba(96, 165, 250, 0.3);
         }
 
         .backBtn {
           font-family: 'Inter', sans-serif;
-          padding: 12px 20px;
-          background: rgba(255,255,255,0.08);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          border: 1px solid rgba(255,255,255,0.14);
+          padding: 12px 24px;
+          background: rgba(255, 255, 255, 0.03);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 999px;
-          font-size: 0.98rem;
+          font-size: 1rem;
           font-weight: 600;
-          color: rgba(255,255,255,.92);
+          color: #e2e8f0;
           cursor: pointer;
-          box-shadow: 0 12px 30px rgba(0,0,0,0.22);
-          transition: transform 0.12s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+          transition: all 0.2s ease;
+          box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.4);
         }
-
         .backBtn:hover {
-          background: rgba(255,255,255,0.12);
-          border-color: rgba(255,255,255,0.22);
-          box-shadow: 0 16px 40px rgba(0,0,0,0.28);
-          transform: translateY(-1px);
-        }
-
-        .backBtn:active {
-          transform: translateY(0px);
+          background: rgba(255, 255, 255, 0.08);
+          transform: translateY(-2px);
+          border-color: rgba(255, 255, 255, 0.2);
+          box-shadow: 0 15px 30px -8px rgba(0, 0, 0, 0.5);
         }
 
         @media (max-width: 640px) {
           .title { font-size: 1.85rem; }
-          .header { padding-left: 24px; padding-right: 24px; }
+          .header { padding: 0 24px; }
         }
       `}</style>
 

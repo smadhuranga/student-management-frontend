@@ -1,3 +1,4 @@
+// DashboardLayout.tsx
 import React from "react";
 
 type Props = {
@@ -10,7 +11,7 @@ const DashboardLayout: React.FC<Props> = ({ children }) => {
             <style>{`
         .dashboard-wrapper {
           min-height: 100vh;
-          background: linear-gradient(125deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+          background: linear-gradient(145deg, #0b1120 0%, #192132 100%);
           position: relative;
           overflow: hidden;
           display: flex;
@@ -24,24 +25,23 @@ const DashboardLayout: React.FC<Props> = ({ children }) => {
         .blob {
           position: absolute;
           border-radius: 50%;
-          filter: blur(70px);
+          filter: blur(90px);
           z-index: 0;
-          animation: float 20s infinite ease-in-out;
+          animation: float 25s infinite alternate ease-in-out;
         }
 
         .blob1 {
           width: 500px;
           height: 500px;
-          background: linear-gradient(135deg, #ff6ec4, #7873f5);
+          background: rgba(96, 165, 250, 0.2);
           top: -200px;
           left: -200px;
-          animation-delay: 0s;
         }
 
         .blob2 {
           width: 600px;
           height: 600px;
-          background: linear-gradient(135deg, #3b9ae1, #9750dd);
+          background: rgba(167, 139, 250, 0.15);
           bottom: -300px;
           right: -200px;
           animation-delay: 5s;
@@ -50,18 +50,15 @@ const DashboardLayout: React.FC<Props> = ({ children }) => {
         .blob3 {
           width: 400px;
           height: 400px;
-          background: linear-gradient(135deg, #f093fb, #f5576c);
+          background: rgba(244, 114, 182, 0.1);
           top: 40%;
           left: 30%;
           animation-delay: 10s;
-          opacity: 0.6;
         }
 
         @keyframes float {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          25% { transform: translate(50px, -30px) scale(1.1); }
-          50% { transform: translate(-20px, 50px) scale(0.9); }
-          75% { transform: translate(30px, 20px) scale(1.05); }
+          0% { transform: translate(0, 0) scale(1); }
+          100% { transform: translate(40px, -40px) scale(1.1); }
         }
 
         .glass-panel {
@@ -69,14 +66,14 @@ const DashboardLayout: React.FC<Props> = ({ children }) => {
           z-index: 10;
           width: 100%;
           max-width: 1200px;
-          background: rgba(255, 255, 255, 0.08);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          background: rgba(17, 25, 40, 0.6);
+          backdrop-filter: blur(16px) saturate(180%);
+          -webkit-backdrop-filter: blur(16px) saturate(180%);
+          border: 1px solid rgba(255, 255, 255, 0.08);
           border-radius: 48px;
           padding: 3rem 2rem;
-          box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3), inset 0 1px 2px rgba(255,255,255,0.2);
-          animation: fadeIn 0.8s ease-out;
+          box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255,255,255,0.05);
+          animation: fadeIn 0.7s ease-out;
         }
 
         @keyframes fadeIn {
@@ -84,7 +81,6 @@ const DashboardLayout: React.FC<Props> = ({ children }) => {
           to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Responsive */
         @media (max-width: 640px) {
           .glass-panel { padding: 2rem 1rem; }
         }

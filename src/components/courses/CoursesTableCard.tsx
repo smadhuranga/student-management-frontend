@@ -7,9 +7,10 @@ type Props = {
     onEdit: (course: Course) => void;
     onDeleteClick: (id: number, courseName: string) => void;
     onManageEnrollments: (course: Course) => void;
+    enrollmentCounts: Record<number, number>;
 };
 
-type SortKey = "id" | "courseName" | "courseCode" | "description";
+type SortKey = "id" | "courseName" | "courseCode" | "description" | "students";
 type SortDir = "asc" | "desc";
 
 const CoursesTableCard: React.FC<Props> = ({
@@ -18,9 +19,11 @@ const CoursesTableCard: React.FC<Props> = ({
                                                onEdit,
                                                onDeleteClick,
                                                onManageEnrollments,
+                                               enrollmentCounts,
                                            }) => {
+    // Default sort: ID descending (newest first)
     const [sortKey, setSortKey] = useState<SortKey>("id");
-    const [sortDir, setSortDir] = useState<SortDir>("asc");
+    const [sortDir, setSortDir] = useState<SortDir>("desc");
     const [pageSize, setPageSize] = useState<number>(10);
     const [page, setPage] = useState<number>(1);
 
@@ -64,13 +67,23 @@ const CoursesTableCard: React.FC<Props> = ({
                 return av.localeCompare(bv) * dir;
             }
 
-            const av = (a.description ?? "").toLowerCase();
-            const bv = (b.description ?? "").toLowerCase();
-            return av.localeCompare(bv) * dir;
+            if (sortKey === "description") {
+                const av = (a.description ?? "").toLowerCase();
+                const bv = (b.description ?? "").toLowerCase();
+                return av.localeCompare(bv) * dir;
+            }
+
+            if (sortKey === "students") {
+                const av = a.id ? enrollmentCounts[a.id] ?? 0 : 0;
+                const bv = b.id ? enrollmentCounts[b.id] ?? 0 : 0;
+                return (av - bv) * dir;
+            }
+
+            return 0;
         });
 
         return arr;
-    }, [courses, sortKey, sortDir]);
+    }, [courses, sortKey, sortDir, enrollmentCounts]);
 
     const totalItems = sortedCourses.length;
     const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
@@ -81,6 +94,7 @@ const CoursesTableCard: React.FC<Props> = ({
         const end = start + pageSize;
         return sortedCourses.slice(start, end);
     }, [sortedCourses, safePage, pageSize]);
+
     const pageNumbers = useMemo(() => {
         const max = 5;
         const half = Math.floor(max / 2);
@@ -102,289 +116,276 @@ const CoursesTableCard: React.FC<Props> = ({
     return (
         <>
             <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap');
 
-        :root{
-          --card: rgba(255,255,255,.06);
-          --stroke: rgba(255,255,255,.12);
-          --stroke2: rgba(255,255,255,.16);
-          --text: rgba(255,255,255,.92);
-          --muted: rgba(255,255,255,.65);
-          --shadow: 0 20px 60px rgba(0,0,0,.45);
-          --radius: 18px;
-          --primaryA:#6366f1;
-          --primaryB:#2563eb;
-          --dangerA:#ef4444;
-          --dangerB:#b91c1c;
-          --successA:#10b981;
-          --successB:#059669;
-          --dropdownBg: rgba(15, 23, 42, .96);
-          --dropdownText: rgba(255,255,255,.90);
-          --dropdownBorder: rgba(255,255,255,.16);
-        }
+  .ct * { font-family: 'Inter', sans-serif; }
 
-        .ct *{ font-family: 'Inter', sans-serif; }
+  .card {
+    margin-top: 18px;
+    background: rgba(17, 25, 40, 0.6);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 48px;
+    padding: 20px;
+    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255,255,255,0.05);
+    position: relative;
+    overflow: hidden;
+  }
 
-        .card{
-          margin-top: 18px;
-          background: linear-gradient(180deg, rgba(17,24,39,.72), rgba(15,23,42,.55));
-          border: 1px solid var(--stroke);
-          border-radius: var(--radius);
-          padding: 18px;
-          box-shadow: var(--shadow);
-          backdrop-filter: blur(14px);
-          -webkit-backdrop-filter: blur(14px);
-          position: relative;
-          overflow: hidden;
-        }
+  .glow {
+    position: absolute;
+    inset: -140px;
+    background: 
+      radial-gradient(520px 260px at 15% 0%, rgba(96,165,250,0.1), transparent 60%),
+      radial-gradient(520px 260px at 90% 10%, rgba(167,139,250,0.08), transparent 60%);
+    pointer-events: none;
+  }
 
-        .glow{
-          position:absolute;
-          inset:-140px;
-          background:
-            radial-gradient(520px 260px at 15% 0%, rgba(99,102,241,.14), transparent 60%),
-            radial-gradient(520px 260px at 90% 10%, rgba(37,99,235,.12), transparent 60%);
-          pointer-events:none;
-        }
+  .topbar {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+    position: relative;
+  }
 
-        .topbar{
-          display:flex;
-          align-items:flex-end;
-          justify-content:space-between;
-          gap:12px;
-          margin-bottom: 12px;
-          position: relative;
-        }
+  .titleWrap {
+    display: grid;
+    gap: 6px;
+  }
 
-        .titleWrap{ display:grid; gap: 6px; }
+  .title {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.02em;
+  }
 
-        .title{
-          margin:0;
-          font-family: 'Poppins', sans-serif;
-          font-size: 18px;
-          font-weight: 700;
-          color: var(--text);
-          letter-spacing:.2px;
-        }
+  .meta {
+    font-size: 12px;
+    color: #94a3b8;
+  }
 
-        .meta{
-          font-size: 12px;
-          color: rgba(255,255,255,.70);
-        }
+  .controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
 
-        .controls{
-          display:flex;
-          gap:10px;
-          align-items:center;
-          flex-wrap: wrap;
-        }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    color: #e2e8f0;
+    font-size: 12px;
+    white-space: nowrap;
+  }
 
-        .chip{
-          display:inline-flex;
-          align-items:center;
-          gap:10px;
-          padding: 8px 12px;
-          border-radius: 999px;
-          background: rgba(255,255,255,.06);
-          border: 1px solid var(--stroke2);
-          color: rgba(255,255,255,.78);
-          font-size: 12px;
-          user-select:none;
-          white-space: nowrap;
-        }
+  .selectWrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+  }
 
-        .select{
-          color-scheme: dark;
-          background-color: var(--dropdownBg);
-          color: var(--dropdownText);
-          border: 1px solid var(--dropdownBorder);
-          border-radius: 999px;
-          padding: 8px 34px 8px 12px;
-          outline: none;
-          cursor: pointer;
-          appearance: none;
-          -webkit-appearance: none;
-          -moz-appearance: none;
-          line-height: 1.2;
-          font-weight: 700;
-        }
+  .select {
+    background: rgba(255, 255, 255, 0.03);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    padding: 8px 34px 8px 12px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    font-weight: 600;
+  }
+  .select option {
+    background: #0b1120;
+    color: #fff;
+  }
+  .selectWrap::after {
+    content: "▾";
+    position: absolute;
+    right: 12px;
+    pointer-events: none;
+    color: #94a3b8;
+    font-size: 12px;
+  }
 
-        .selectWrap{
-          position: relative;
-          display:inline-flex;
-          align-items:center;
-        }
+  .tableWrap {
+    overflow: auto;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.02);
+    position: relative;
+  }
 
-        .selectWrap::after{
-          content: "▾";
-          position: absolute;
-          right: 12px;
-          pointer-events: none;
-          color: rgba(255,255,255,.75);
-          font-size: 12px;
-        }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #fff;
+    min-width: 1200px;
+    table-layout: fixed;
+  }
 
-        .select option{
-          background-color: rgba(15, 23, 42, 1);
-          color: rgba(255,255,255,.92);
-        }
+  thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: rgba(17, 25, 40, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
 
-        .tableWrap{
-          overflow:auto;
-          border-radius: 14px;
-          border: 1px solid var(--stroke);
-          background: rgba(255,255,255,.03);
-          position: relative;
-        }
+  th, td {
+    padding: 14px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    text-align: left;
+    vertical-align: middle;
+  }
 
-        table{
-          width:100%;
-          border-collapse: collapse;
-          color: var(--text);
-          min-width: 1100px;
-          table-layout: fixed;
-        }
+  th {
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #94a3b8;
+    font-weight: 600;
+  }
 
-        thead th{
-          position: sticky;
-          top: 0;
-          z-index: 1;
-          background: rgba(15, 23, 42, .86);
-          backdrop-filter: blur(10px);
-          -webkit-backdrop-filter: blur(10px);
-          border-bottom: 1px solid rgba(255,255,255,.10);
-        }
+  tr:hover td {
+    background: rgba(255, 255, 255, 0.02);
+  }
 
-        th, td{
-          padding: 14px 14px;
-          border-bottom: 1px solid rgba(255,255,255,.08);
-          text-align: left;
-          vertical-align: middle;
-        }
+  .muted {
+    color: #94a3b8;
+    font-size: 13px;
+  }
 
-        th{
-          font-size: 12px;
-          letter-spacing: .22px;
-          text-transform: uppercase;
-          color: rgba(255,255,255,.72);
-          user-select:none;
-        }
+  .cellEllipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
-        tr:hover td{
-          background: rgba(255,255,255,.03);
-        }
+  .actionsCell {
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
 
-        .muted{
-          color: var(--muted);
-          font-size: 13px;
-        }
+  .btn {
+    border: 0;
+    border-radius: 999px;
+    padding: 8px 12px;
+    cursor: pointer;
+    color: #fff;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.3);
+  }
+  .btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 25px -6px rgba(0, 0, 0, 0.4);
+  }
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 
-        .cellEllipsis{
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
+  .edit {
+    background: linear-gradient(135deg, #475569 0%, #1e293b 100%);
+  }
+  .delete {
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+  }
+  .manage {
+    background: linear-gradient(135deg, #10b981, #059669);
+  }
 
-        .actionsCell{
-          display:flex;
-          justify-content:flex-start;
-          gap:10px;
-          flex-wrap: wrap;
-        }
+  .sortBtn {
+    all: unset;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #94a3b8;
+    transition: color 0.2s ease;
+  }
+  .sortBtn:hover {
+    color: #fff;
+  }
 
-        .btn{
-          border: 0;
-          border-radius: 999px;
-          padding: 8px 12px;
-          cursor: pointer;
-          color: white;
-          font-weight: 700;
-          letter-spacing: .2px;
-          transition: transform .08s ease, opacity .15s ease, box-shadow .15s ease;
-          display:inline-flex;
-          align-items:center;
-          gap:8px;
-        }
+  .empty {
+    padding: 18px;
+    color: #94a3b8;
+  }
 
-        .btn:active{ transform: translateY(1px); }
-        .btn[disabled]{ opacity:.55; cursor:not-allowed; }
+  .footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+    position: relative;
+  }
 
-        .edit{
-          background: linear-gradient(135deg, var(--primaryA), var(--primaryB));
-          box-shadow: 0 12px 30px rgba(37,99,235,.18);
-        }
+  .pager {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
 
-        .delete{
-          background: linear-gradient(135deg, var(--dangerA), var(--dangerB));
-          box-shadow: 0 12px 30px rgba(239,68,68,.14);
-        }
+  .pageBtn {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    color: #e2e8f0;
+    border-radius: 999px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+  .pageBtn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+  }
+  .pageBtn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
 
-        .manage{
-          background: linear-gradient(135deg, var(--successA), var(--successB));
-          box-shadow: 0 12px 30px rgba(16,185,129,.18);
-        }
+  .pageBtnActive {
+    border-color: #60a5fa;
+    background: rgba(96, 165, 250, 0.15);
+  }
 
-        .sortBtn{
-          all: unset;
-          cursor: pointer;
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-        }
-
-        .sortBtn:hover{
-          color: rgba(255,255,255,.9);
-        }
-
-        .empty{
-          padding: 18px;
-          color: rgba(255,255,255,.72);
-        }
-
-        .footer{
-          display:flex;
-          align-items:center;
-          justify-content:space-between;
-          gap: 12px;
-          margin-top: 12px;
-          flex-wrap: wrap;
-          position: relative;
-        }
-
-        .pager{
-          display:flex;
-          gap: 8px;
-          align-items:center;
-          flex-wrap: wrap;
-        }
-
-        .pageBtn{
-          border: 1px solid var(--stroke2);
-          background: rgba(255,255,255,.06);
-          color: rgba(255,255,255,.86);
-          border-radius: 999px;
-          padding: 8px 12px;
-          cursor:pointer;
-          font-weight: 700;
-          transition: transform .08s ease, opacity .15s ease, background .15s ease;
-        }
-
-        .pageBtn:active{ transform: translateY(1px); }
-        .pageBtn[disabled]{ opacity:.55; cursor:not-allowed; }
-
-        .pageBtnActive{
-          border-color: rgba(99,102,241,.55);
-          background: rgba(99,102,241,.14);
-        }
-
-        .range{
-          color: rgba(255,255,255,.70);
-          font-size: 12px;
-        }
-      `}</style>
+  .range {
+    color: #94a3b8;
+    font-size: 12px;
+  }
+`}</style>
 
             <div className="ct card">
-                <div className="glow" />
+                <div className="glow"/>
 
                 <div className="topbar">
                     <div className="titleWrap">
@@ -418,11 +419,12 @@ const CoursesTableCard: React.FC<Props> = ({
                 <div className="tableWrap">
                     <table>
                         <colgroup>
-                            <col style={{ width: "90px" }} />
-                            <col style={{ width: "240px" }} />
-                            <col style={{ width: "180px" }} />
-                            <col style={{ width: "auto" }} />
-                            <col style={{ width: "360px" }} />
+                            <col style={{width: "80px"}}/>
+                            <col style={{width: "200px"}}/>
+                            <col style={{width: "150px"}}/>
+                            <col style={{width: "auto"}}/>
+                            <col style={{width: "100px"}}/>
+                            <col style={{width: "320px"}}/>
                         </colgroup>
 
                         <thead>
@@ -447,6 +449,11 @@ const CoursesTableCard: React.FC<Props> = ({
                                     Description{sortIndicator("description")}
                                 </button>
                             </th>
+                            <th>
+                                <button type="button" className="sortBtn" onClick={() => toggleSort("students")}>
+                                    Students{sortIndicator("students")}
+                                </button>
+                            </th>
                             <th>Actions</th>
                         </tr>
                         </thead>
@@ -454,13 +461,13 @@ const CoursesTableCard: React.FC<Props> = ({
                         <tbody>
                         {loading ? (
                             <tr>
-                                <td colSpan={5} className="empty">
+                                <td colSpan={6} className="empty">
                                     Loading…
                                 </td>
                             </tr>
                         ) : sortedCourses.length === 0 ? (
                             <tr>
-                                <td colSpan={5} className="empty">
+                                <td colSpan={6} className="empty">
                                     No courses yet.
                                 </td>
                             </tr>
@@ -476,6 +483,9 @@ const CoursesTableCard: React.FC<Props> = ({
                                     </td>
                                     <td className="muted cellEllipsis" title={c.description ?? ""}>
                                         {c.description ?? "-"}
+                                    </td>
+                                    <td className="muted">
+                                        {c.id ? enrollmentCounts[c.id] ?? 0 : 0}
                                     </td>
                                     <td>
                                         <div className="actionsCell">

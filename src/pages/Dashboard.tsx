@@ -1,9 +1,10 @@
+// Dashboard.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getStudents } from "../services/studentservice";
 import { getCourses } from "../services/courseservice";
 
-import DashboardLayout from "../components/ dashboard/ DashboardLayout.tsx";
+import DashboardLayout from "../components/ dashboard/ DashboardLayout";
 import DashboardHeader from "../components/ dashboard/ DashboardHeader";
 import DashboardStats from "../components/ dashboard/ DashboardStats";
 
@@ -54,31 +55,27 @@ const Dashboard: React.FC = () => {
                 <button
                     onClick={handleLogout}
                     style={{
-                        background: "rgba(255, 255, 255, 0.05)",
-                        backdropFilter: "blur(8px)",
-                        WebkitBackdropFilter: "blur(8px)",
+                        background: "linear-gradient(135deg, #475569 0%, #1e293b 100%)",
+                        border: "1px solid rgba(255, 255, 255, 0.1)",
                         borderRadius: "40px",
-                        padding: "1rem 3rem",
-                        fontSize: "1.2rem",
+                        padding: "0.9rem 3rem",
+                        fontSize: "1.1rem",
                         fontWeight: 500,
-                        color: "white",
+                        color: "#f1f5f9",
                         cursor: "pointer",
-                        transition: "all 0.3s ease",
-                        boxShadow: "0 8px 20px rgba(0,0,0,0.2)",
+                        transition: "all 0.2s ease",
+                        boxShadow: "0 10px 25px -8px rgba(0, 0, 0, 0.4)",
                         marginTop: "2rem",
-                        border: "none",
                     }}
                     onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLButtonElement).style.background =
-                            "rgba(255, 80, 100, 0.3)";
-                        (e.currentTarget as HTMLButtonElement).style.transform =
-                            "translateY(-3px)";
+                        e.currentTarget.style.background = "linear-gradient(135deg, #5f6b7a, #2d3748)";
+                        e.currentTarget.style.transform = "translateY(-2px)";
+                        e.currentTarget.style.boxShadow = "0 15px 30px -8px rgba(0, 0, 0, 0.5)";
                     }}
                     onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLButtonElement).style.background =
-                            "rgba(255, 255, 255, 0.05)";
-                        (e.currentTarget as HTMLButtonElement).style.transform =
-                            "translateY(0)";
+                        e.currentTarget.style.background = "linear-gradient(135deg, #475569 0%, #1e293b 100%)";
+                        e.currentTarget.style.transform = "translateY(0)";
+                        e.currentTarget.style.boxShadow = "0 10px 25px -8px rgba(0, 0, 0, 0.4)";
                     }}
                 >
                     Logout

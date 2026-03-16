@@ -48,8 +48,9 @@ const Students: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
 
+    // Default sort: ID descending (newest first)
     const [sortColumn, setSortColumn] = useState<string>("id");
-    const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+    const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
     useEffect(() => {
         (async () => {
@@ -62,19 +63,8 @@ const Students: React.FC = () => {
         setCurrentPage(1);
     }, [search]);
 
-    const handleCourseChange = (courseId: number) => {
-        const selected = formData.courseIds || [];
-        if (selected.includes(courseId)) {
-            setFormData({
-                ...formData,
-                courseIds: selected.filter((id) => id !== courseId),
-            });
-        } else {
-            setFormData({
-                ...formData,
-                courseIds: [...selected, courseId],
-            });
-        }
+    const handleCourseIdsChange = (selectedIds: number[]) => {
+        setFormData(prev => ({ ...prev, courseIds: selectedIds }));
     };
 
     const loadCourses = async () => {
@@ -361,7 +351,7 @@ const Students: React.FC = () => {
                 onChange={handleChange}
                 onEmailChange={handleEmailChange}
                 onSubmit={handleSubmit}
-                onCourseChange={handleCourseChange}
+                onCourseIdsChange={handleCourseIdsChange}
             />
 
             <StudentsSearchBar

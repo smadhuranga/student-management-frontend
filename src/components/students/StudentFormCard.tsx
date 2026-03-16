@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import type { Student } from "../../types/Student";
 import type { Course } from "../../types/Course";
 
@@ -11,7 +11,8 @@ type Props = {
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onEmailChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onSubmit: (e: React.FormEvent) => void;
-    onCourseChange: (courseId: number) => void;
+    // New prop: receives full array of selected course IDs
+    onCourseIdsChange: (selectedIds: number[]) => void;
 };
 
 const StudentFormCard: React.FC<Props> = ({
@@ -22,255 +23,279 @@ const StudentFormCard: React.FC<Props> = ({
                                               onChange,
                                               onEmailChange,
                                               onSubmit,
-                                              onCourseChange,
+                                              onCourseIdsChange,
                                           }) => {
+    // State for dropdown open/close and pagination
+    const [isOpen, setIsOpen] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const pageSize = 5; // Show 5 courses per page
+
+    // Selected IDs from formData
+    const selectedIds = formData.courseIds || [];
+
+    // Toggle a single course selection
+    const toggleCourse = (courseId: number) => {
+        const newSelected = selectedIds.includes(courseId)
+            ? selectedIds.filter(id => id !== courseId)
+            : [...selectedIds, courseId];
+        onCourseIdsChange(newSelected);
+    };
+
+    // Pagination logic
+    const totalPages = Math.ceil(courses.length / pageSize);
+    const paginatedCourses = courses.slice(
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize
+    );
+
+    // Get display text for button
+    const selectedCount = selectedIds.length;
+    const buttonText = selectedCount === 0
+        ? "Select courses"
+        : `${selectedCount} course${selectedCount > 1 ? 's' : ''} selected`;
+
     return (
         <>
             <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap');
 
-        :root{
-          /* tuned to match your StudentsLayout glassCard */
-          --cardBgA: rgba(255,255,255,.07);
-          --cardBgB: rgba(255,255,255,.04);
-          --stroke: rgba(255,255,255,.10);
-          --stroke2: rgba(255,255,255,.16);
-          --text: rgba(255,255,255,.94);
-          --muted: rgba(255,255,255,.70);
-
-          --shadow:
-            0 34px 70px rgba(0,0,0,0.34),
-            inset 0 1px 2px rgba(255,255,255,0.08);
-
-          --radius: 32px;
-
-          --primaryA:#6d28d9;
-          --primaryB:#2563eb;
-          --ring: rgba(99,102,241,.18);
-        }
-
         .sf * { font-family: 'Inter', sans-serif; box-sizing: border-box; }
 
-        /* match .glassCard proportions */
-        .card{
+        .card {
           width: 92%;
           max-width: 1200px;
           margin: 0 auto 34px auto;
-
           position: relative;
           overflow: hidden;
-
-          border-radius: var(--radius);
+          border-radius: 48px;
           padding: 30px;
-
-          background: linear-gradient(180deg, var(--cardBgA), var(--cardBgB));
-          border: 1px solid var(--stroke);
-          box-shadow: var(--shadow);
-
-          backdrop-filter: blur(18px);
-          -webkit-backdrop-filter: blur(18px);
+          background: rgba(17, 25, 40, 0.6);
+          backdrop-filter: blur(16px) saturate(180%);
+          -webkit-backdrop-filter: blur(16px) saturate(180%);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255,255,255,0.05);
         }
 
-        .glow{
-          position:absolute;
-          inset:-220px;
-          background:
-            radial-gradient(520px 320px at 12% 0%, rgba(109,40,217,.18), transparent 62%),
-            radial-gradient(520px 320px at 92% 10%, rgba(37,99,235,.16), transparent 62%),
-            radial-gradient(520px 340px at 45% 120%, rgba(99,102,241,.10), transparent 64%);
-          pointer-events:none;
-          filter: blur(6px);
-          opacity: .95;
+        .glow {
+          position: absolute;
+          inset: -220px;
+          background: 
+            radial-gradient(520px 320px at 12% 0%, rgba(96,165,250,0.15), transparent 62%),
+            radial-gradient(520px 320px at 92% 10%, rgba(167,139,250,0.1), transparent 62%),
+            radial-gradient(520px 340px at 45% 120%, rgba(244,114,182,0.08), transparent 64%);
+          pointer-events: none;
         }
 
-        .title{
+        .title {
           position: relative;
           margin: 0 0 18px 0;
           font-family: 'Poppins', sans-serif;
-          font-size: 1.6rem;
+          font-size: 1.8rem;
           font-weight: 700;
-          color: var(--text);
-          letter-spacing: -0.01em;
-          text-shadow: 0 10px 24px rgba(0,0,0,.25);
+          background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          letter-spacing: -0.02em;
         }
 
-        .form{
+        .form {
           position: relative;
           display: flex;
           flex-direction: column;
           gap: 16px;
         }
 
-        .row{
+        .row {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 14px;
         }
 
-        .label{
-          font-size: 0.95rem;
-          color: rgba(255,255,255,.86);
-          font-weight: 700;
-          margin-bottom: 10px;
-          display: inline-block;
-          letter-spacing: .2px;
-        }
-
-        /* inputs need to look like your search bar / table controls */
-        .input{
+        .input {
           width: 100%;
           padding: 14px 16px;
-          border-radius: 16px;
-          border: 1px solid rgba(255,255,255,0.14);
-
-          background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
-          color: rgba(255,255,255,.92);
+          border-radius: 40px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          background: rgba(255, 255, 255, 0.03);
+          color: #fff;
           font-size: 1rem;
-          font-weight: 600;
           outline: none;
-
-          box-shadow:
-            inset 0 1px 0 rgba(255,255,255,.08),
-            0 14px 36px rgba(0,0,0,0.18);
-
-          transition: border-color .18s ease, background .18s ease, box-shadow .18s ease, transform .08s ease;
+          transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+        }
+        .input::placeholder {
+          color: rgba(255, 255, 255, 0.4);
+        }
+        .input:focus {
+          border-color: #60a5fa;
+          background: rgba(255, 255, 255, 0.05);
+          box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.15);
         }
 
-        .input::placeholder{
-          color: rgba(255,255,255,.58);
-          font-weight: 500;
-        }
-
-        .input:focus{
-          border-color: rgba(99,102,241,.45);
-          background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.05));
-          box-shadow:
-            inset 0 1px 0 rgba(255,255,255,.10),
-            0 18px 44px rgba(0,0,0,0.24),
-            0 0 0 4px var(--ring);
-        }
-
-        /* date input icon visibility on dark */
-        .input[type="date"]{
+        .input[type="date"] {
           color-scheme: dark;
         }
 
-        .coursesGrid{
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        /* Dropdown container */
+        .dropdown {
+          position: relative;
+          width: 100%;
+        }
+
+        .dropdownButton {
+          width: 100%;
+          padding: 14px 16px;
+          border-radius: 40px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          background: rgba(255, 255, 255, 0.03);
+          color: #fff;
+          font-size: 1rem;
+          text-align: left;
+          cursor: pointer;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          transition: all 0.2s ease;
+        }
+        .dropdownButton:hover {
+          background: rgba(255, 255, 255, 0.06);
+          border-color: rgba(255, 255, 255, 0.15);
+        }
+        .dropdownButton:focus {
+          border-color: #60a5fa;
+          box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.15);
+          outline: none;
+        }
+
+        .arrow {
+          border: solid #94a3b8;
+          border-width: 0 2px 2px 0;
+          display: inline-block;
+          padding: 3px;
+          transform: rotate(45deg);
+          transition: transform 0.2s ease;
+        }
+        .arrow.open {
+          transform: rotate(-135deg);
+        }
+
+        .dropdownPanel {
+          top: calc(100% + 8px);
+          left: 0;
+          right: 0;
+          background: #0f172a;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 24px;
+          padding: 16px;
+          z-index: 20;
+          box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6);
+          max-height: 400px;
+          overflow-y: auto;
+        }
+
+        .courseOption {
+          display: flex;
+          align-items: center;
           gap: 12px;
-          margin-top: 10px;
+          padding: 10px 12px;
+          border-radius: 16px;
+          cursor: pointer;
+          transition: background 0.2s ease;
+        }
+        .courseOption:hover {
+          background: rgba(255, 255, 255, 0.06);
         }
 
-        /* larger, cleaner course chips/cards */
-        .courseItem{
-          display:flex;
-          align-items:flex-start;
-          gap:12px;
-
-          padding: 12px 14px;
-          border-radius: 18px;
-
-          background: rgba(255,255,255,0.06);
-          border: 1px solid rgba(255,255,255,0.12);
-
-          cursor:pointer;
-          user-select:none;
-          min-height: 56px;
-
-          transition: transform .10s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease;
-          box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
-        }
-
-        .courseItem:hover{
-          background: rgba(255,255,255,0.09);
-          border-color: rgba(255,255,255,0.18);
-          box-shadow:
-            inset 0 1px 0 rgba(255,255,255,.08),
-            0 18px 40px rgba(0,0,0,.20);
-          transform: translateY(-1px);
-        }
-
-        .courseItem:active{
-          transform: translateY(0px);
-        }
-
-        .courseItem input[type="checkbox"]{
+        .courseOption input[type="checkbox"] {
           width: 18px;
           height: 18px;
-          margin-top: 2px;
-          accent-color: var(--primaryA);
+          accent-color: #60a5fa;
           cursor: pointer;
-          flex: 0 0 auto;
         }
 
-        .courseText{
-          color: rgba(255,255,255,.94);
+        .courseInfo {
+          flex: 1;
+          min-width: 0;
+        }
+        .courseName {
+          color: #e2e8f0;
           font-size: 0.95rem;
-          font-weight: 800;
-          line-height: 1.2;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-
-        .courseSub{
-          color: rgba(255,255,255,.68);
-          font-size: 0.85rem;
-          margin-top: 4px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
           font-weight: 600;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .courseCode {
+          color: #94a3b8;
+          font-size: 0.85rem;
+          margin-top: 2px;
         }
 
-        /* button sized like the rest of the page */
-        .primaryButton{
-          width:35%;
+        .pagination {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 8px;
+          margin-top: 16px;
+          padding-top: 12px;
+          border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .pageButton {
+          padding: 6px 12px;
+          border-radius: 999px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          background: rgba(255, 255, 255, 0.03);
+          color: #e2e8f0;
+          font-size: 0.9rem;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .pageButton:hover:not(:disabled) {
+          background: rgba(255, 255, 255, 0.08);
+          transform: translateY(-1px);
+        }
+        .pageButton:disabled {
+          opacity: 0.4;
+          cursor: not-allowed;
+        }
+        .pageInfo {
+          color: #94a3b8;
+          font-size: 0.9rem;
+        }
+
+        .primaryButton {
+          width: 35%;
           margin: auto;
           padding: 14px 18px;
           border-radius: 999px;
           border: none;
-
-          background: linear-gradient(135deg, var(--primaryA), var(--primaryB));
-          color: white;
+          background: linear-gradient(135deg, #475569 0%, #1e293b 100%);
+          color: #fff;
           font-size: 1rem;
-          font-weight: 900;
-          letter-spacing: .2px;
-
+          font-weight: 700;
           cursor: pointer;
-          transition: transform .10s ease, box-shadow .18s ease, filter .18s ease, opacity .18s ease;
-
-          box-shadow: 0 18px 46px rgba(37,99,235,.22);
+          transition: all 0.2s ease;
+          box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.4);
+        }
+        .primaryButton:hover:not(:disabled) {
+          background: linear-gradient(135deg, #5f6b7a, #2d3748);
+          transform: translateY(-2px);
+          box-shadow: 0 15px 30px -8px rgba(0, 0, 0, 0.5);
+        }
+        .primaryButton:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
         }
 
-        .primaryButton:hover{
-          filter: brightness(1.05);
-          box-shadow: 0 22px 56px rgba(37,99,235,.28), 0 0 0 4px rgba(99,102,241,.12);
-          transform: translateY(-1px);
+        @media (max-width: 900px) {
+          .card { padding: 24px; border-radius: 32px; }
+          .primaryButton { width: 50%; }
         }
 
-        .primaryButton:active{
-          transform: translateY(0px);
-        }
-
-        .primaryButton:disabled{
-          opacity: 0.62;
-          cursor:not-allowed;
-          transform:none;
-          filter:none;
-          box-shadow: 0 14px 34px rgba(37,99,235,.14);
-        }
-
-        @media(max-width:900px){
-          .card{ padding: 24px; border-radius: 28px; }
-          .coursesGrid{ grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
-        }
-
-        @media(max-width:640px){
-          .row{ grid-template-columns:1fr; }
-          .coursesGrid{ grid-template-columns: 1fr; }
-          .title{ font-size: 1.35rem; }
+        @media (max-width: 640px) {
+          .row { grid-template-columns: 1fr; }
+          .title { font-size: 1.5rem; }
+          .primaryButton { width: 100%; }
         }
       `}</style>
 
@@ -282,7 +307,6 @@ const StudentFormCard: React.FC<Props> = ({
                 </h2>
 
                 <form onSubmit={onSubmit} className="form">
-                    {/* FIRST + LAST NAME */}
                     <div className="row">
                         <input
                             name="firstName"
@@ -303,7 +327,6 @@ const StudentFormCard: React.FC<Props> = ({
                         />
                     </div>
 
-                    {/* EMAIL */}
                     <input
                         name="email"
                         type="email"
@@ -314,7 +337,6 @@ const StudentFormCard: React.FC<Props> = ({
                         className="input"
                     />
 
-                    {/* DATES */}
                     <div className="row">
                         <input
                             type="date"
@@ -335,42 +357,62 @@ const StudentFormCard: React.FC<Props> = ({
                         />
                     </div>
 
-                    {/* COURSE SELECTION */}
-                    <div>
-                        <label className="label">Select Courses</label>
+                    {/* Custom multi-select dropdown with pagination */}
+                    <div className="dropdown">
+                        <button
+                            type="button"
+                            className="dropdownButton"
+                            onClick={() => setIsOpen(!isOpen)}
+                        >
+                            <span>{buttonText}</span>
+                            <span className={`arrow ${isOpen ? 'open' : ''}`} />
+                        </button>
 
-                        <div className="coursesGrid">
-                            {courses.map((course) => {
-                                if (course.id === undefined) return null;
-
-                                const checked = formData.courseIds?.includes(course.id) ?? false;
-
-                                return (
-                                    <label key={course.id} className="courseItem">
+                        {isOpen && (
+                            <div className="dropdownPanel">
+                                {paginatedCourses.map(course => (
+                                    <label key={course.id} className="courseOption">
                                         <input
                                             type="checkbox"
-                                            checked={checked}
-                                            onChange={() => onCourseChange(course.id!)}
+                                            checked={selectedIds.includes(course.id!)}
+                                            onChange={() => toggleCourse(course.id!)}
                                         />
-
-                                        <div style={{ minWidth: 0 }}>
-                                            <div className="courseText" title={course.courseName}>
-                                                {course.courseName}
-                                            </div>
-
-                                            {course.description ? (
-                                                <div className="courseSub" title={course.description}>
-                                                    {course.description}
-                                                </div>
-                                            ) : null}
+                                        <div className="courseInfo">
+                                            <div className="courseName">{course.courseName}</div>
+                                            {course.courseCode && (
+                                                <div className="courseCode">{course.courseCode}</div>
+                                            )}
                                         </div>
                                     </label>
-                                );
-                            })}
-                        </div>
+                                ))}
+
+                                {totalPages > 1 && (
+                                    <div className="pagination">
+                                        <button
+                                            type="button"
+                                            className="pageButton"
+                                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                            disabled={currentPage === 1}
+                                        >
+                                            ‹ Prev
+                                        </button>
+                                        <span className="pageInfo">
+                                            Page {currentPage} of {totalPages}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            className="pageButton"
+                                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                            disabled={currentPage === totalPages}
+                                        >
+                                            Next ›
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
 
-                    {/* SUBMIT */}
                     <button type="submit" className="primaryButton" disabled={loading}>
                         {loading ? "Processing..." : editingId ? "Update Student" : "Add Student"}
                     </button>

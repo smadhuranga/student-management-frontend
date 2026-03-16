@@ -21,223 +21,204 @@ const CourseFormCard: React.FC<Props> = ({
     return (
         <>
             <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap');
 
-        :root{
-          --bg:#0b1224;
-          --panel: rgba(17,24,39,.72);
-          --panel2: rgba(15,23,42,.55);
-          --stroke: rgba(255,255,255,.10);
-          --stroke2: rgba(255,255,255,.14);
-          --text: rgba(255,255,255,.92);
-          --muted: rgba(255,255,255,.65);
-          --muted2: rgba(255,255,255,.5);
-          --shadow: 0 18px 55px rgba(0,0,0,.45);
-          --radius: 18px;
-          --radius2: 14px;
-          --primaryA:#6366f1;
-          --primaryB:#2563eb;
-        }
+  .cf * { font-family: 'Inter', sans-serif; }
 
-        .cf *{ font-family: 'Inter', sans-serif; }
+  .cfCard {
+    background: rgba(17, 25, 40, 0.6);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 48px;
+    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255,255,255,0.05);
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
 
-        .cfCard{
-          background: linear-gradient(180deg, var(--panel), var(--panel2));
-          border: 1px solid var(--stroke);
-          border-radius: var(--radius);
-          box-shadow: var(--shadow);
-          backdrop-filter: blur(14px);
-          -webkit-backdrop-filter: blur(14px);
-          padding: 22px;
-          position: relative;
-          overflow: hidden;
-        }
+  .cfGlow {
+    position: absolute;
+    inset: -120px;
+    background: 
+      radial-gradient(500px 240px at 20% 10%, rgba(96,165,250,0.15), transparent 60%),
+      radial-gradient(520px 260px at 90% 0%, rgba(167,139,250,0.1), transparent 60%),
+      radial-gradient(520px 260px at 55% 120%, rgba(244,114,182,0.08), transparent 60%);
+    pointer-events: none;
+  }
 
-        .cfGlow{
-          position:absolute;
-          inset:-120px;
-          background:
-            radial-gradient(500px 240px at 20% 10%, rgba(99,102,241,.18), transparent 60%),
-            radial-gradient(520px 260px at 90% 0%, rgba(37,99,235,.16), transparent 60%),
-            radial-gradient(520px 260px at 55% 120%, rgba(168,85,247,.12), transparent 60%);
-          pointer-events:none;
-        }
+  .cfHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    position: relative;
+  }
 
-        .cfHeader{
-          display:flex;
-          align-items:flex-start;
-          justify-content:space-between;
-          gap: 14px;
-          position: relative;
-        }
+  .cfTitle {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
 
-        .cfTitle{
-          margin: 0;
-          font-family: 'Poppins', sans-serif;
-          font-size: 20px;
-          font-weight: 700;
-          letter-spacing: .3px;
-          color: var(--text);
-        }
+  .cfSub {
+    margin: 6px 0 0 0;
+    font-size: 13px;
+    color: #94a3b8;
+    line-height: 1.45;
+  }
 
-        .cfSub{
-          margin: 6px 0 0 0;
-          font-size: 13px;
-          color: var(--muted);
-          line-height: 1.45;
-        }
+  .cfBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    color: #e2e8f0;
+    font-size: 12px;
+    white-space: nowrap;
+  }
 
-        .cfBadge{
-          display:inline-flex;
-          align-items:center;
-          gap:8px;
-          padding: 8px 10px;
-          border-radius: 999px;
-          background: rgba(255,255,255,.06);
-          border: 1px solid var(--stroke2);
-          color: rgba(255,255,255,.78);
-          font-size: 12px;
-          white-space: nowrap;
-          user-select:none;
-        }
+  .cfDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+  }
 
-        .cfForm{
-          margin-top: 16px;
-          display:grid;
-          gap: 14px;
-          position: relative;
-        }
+  .cfDotLive {
+    background: #60a5fa;
+    box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.3);
+  }
 
-        .cfField{
-          display:grid;
-          gap: 8px;
-        }
+  .cfDivider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.05);
+    margin: 16px 0;
+  }
 
-        .cfFieldGrid{
-          display:grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 14px;
-        }
+  .cfForm {
+    display: grid;
+    gap: 14px;
+    position: relative;
+  }
 
-        .cfLabelRow{
-          display:flex;
-          justify-content:space-between;
-          align-items:center;
-          gap:10px;
-        }
+  .cfFieldGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
 
-        .cfLabel{
-          font-size: 13px;
-          font-weight: 600;
-          color: rgba(255,255,255,.78);
-        }
+  .cfField {
+    display: grid;
+    gap: 8px;
+  }
 
-        .cfHint{
-          font-size: 12px;
-          color: var(--muted2);
-        }
+  .cfLabelRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
 
-        .cfInput, .cfTextarea{
-          margin:auto;
-          width: 95%;
-          border-radius: var(--radius2);
-          border: 1px solid var(--stroke);
-          background: rgba(255,255,255,.06);
-          color: var(--text);
-          padding: 12px 12px;
-          outline: none;
-          transition: border-color .15s ease, background .15s ease;
-          box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
-        }
+  .cfLabel {
+    font-size: 13px;
+    font-weight: 600;
+    color: #e2e8f0;
+  }
 
-        .cfInput::placeholder, .cfTextarea::placeholder{
-          color: rgba(255,255,255,.42);
-        }
+  .cfHint {
+    font-size: 12px;
+    color: #94a3b8;
+  }
 
-        .cfInput:focus, .cfTextarea:focus{
-          border-color: rgba(99,102,241,.55);
-          background: rgba(255,255,255,.08);
-        }
+  .cfInput, .cfTextarea {
+    width: 95%;
+    border-radius: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+    color: #fff;
+    padding: 12px 16px;
+    outline: none;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .cfInput:focus, .cfTextarea:focus {
+    border-color: #60a5fa;
+    background: rgba(255, 255, 255, 0.05);
+  }
+  .cfInput::placeholder, .cfTextarea::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+  }
 
-        .cfTextarea{
-          min-height: 96px;
-          resize: vertical;
-        }
+  .cfTextarea {
+    min-height: 96px;
+    resize: vertical;
+    border-radius: 24px;
+  }
 
-        .cfActions{
-          display:flex;
-          gap: 10px;
-          align-items:center;
-          flex-wrap: wrap;
-          margin-top: 2px;
-        }
+  .cfActions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 2px;
+  }
 
-        .cfBtn{
-          border: 0;
-          border-radius: 999px;
-          padding: 10px 14px;
-          cursor: pointer;
-          font-weight: 700;
-          letter-spacing: .2px;
-          transition: transform .08s ease, opacity .15s ease, box-shadow .15s ease;
-          display:inline-flex;
-          align-items:center;
-          gap: 10px;
-          user-select:none;
-        }
+  .cfBtn {
+    border: 0;
+    border-radius: 999px;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
 
-        .cfBtn:active{ transform: translateY(1px); }
+  .cfPrimary {
+    color: #fff;
+    background: linear-gradient(135deg, #475569 0%, #1e293b 100%);
+    box-shadow: 0 10px 25px -8px rgba(0, 0, 0, 0.4);
+  }
+  .cfPrimary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #5f6b7a, #2d3748);
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px -8px rgba(0, 0, 0, 0.5);
+  }
 
-        .cfPrimary{
-          color: white;
-          background: linear-gradient(135deg, var(--primaryA), var(--primaryB));
-          box-shadow: 0 12px 30px rgba(37,99,235,.22);
-        }
+  .cfGhost {
+    color: #e2e8f0;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .cfGhost:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+  }
 
-        .cfPrimary:hover{
-          box-shadow: 0 14px 40px rgba(37,99,235,.28);
-        }
+  .cfBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 
-        .cfGhost{
-          color: rgba(255,255,255,.86);
-          background: rgba(255,255,255,.06);
-          border: 1px solid var(--stroke2);
-        }
-
-        .cfBtn[disabled]{
-          opacity:.6;
-          cursor:not-allowed;
-          filter: grayscale(.2);
-        }
-
-        .cfDot{
-          width: 8px;
-          height: 8px;
-          border-radius: 999px;
-          background: rgba(255,255,255,.7);
-          box-shadow: 0 0 0 4px rgba(255,255,255,.10);
-        }
-
-        .cfDotLive{
-          background: rgba(99,102,241,.95);
-          box-shadow: 0 0 0 4px rgba(99,102,241,.18);
-        }
-
-        .cfDivider{
-          height: 1px;
-          background: rgba(255,255,255,.08);
-          margin-top: 14px;
-        }
-
-        @media (max-width: 720px){
-          .cfFieldGrid{
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
+  @media (max-width: 720px) {
+    .cfFieldGrid {
+      grid-template-columns: 1fr;
+    }
+  }
+`}</style>
 
             <div className="cf cfCard">
-                <div className="cfGlow" />
+                <div className="cfGlow"/>
 
                 <div className="cfHeader">
                     <div>
@@ -251,18 +232,18 @@ const CourseFormCard: React.FC<Props> = ({
 
                     {editingId ? (
                         <span className="cfBadge">
-                            <span className="cfDot cfDotLive" />
+                            <span className="cfDot cfDotLive"/>
                             Editing ID: {editingId}
                         </span>
                     ) : (
                         <span className="cfBadge">
-                            <span className="cfDot" />
+                            <span className="cfDot"/>
                             New course
                         </span>
                     )}
                 </div>
 
-                <div className="cfDivider" />
+                <div className="cfDivider"/>
 
                 <form onSubmit={onSubmit} className="cfForm">
                     <div className="cfFieldGrid">

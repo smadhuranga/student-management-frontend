@@ -1,3 +1,4 @@
+// DashboardStats.tsx
 import React from "react";
 import StatCard from "./StatCard";
 
@@ -30,7 +31,7 @@ const DashboardStats: React.FC<Props> = ({
                     font-size: 3.5rem;
                     font-weight: 700;
                     line-height: 1.2;
-                    background: linear-gradient(145deg, #fff, #f0e6ff);
+                    background: linear-gradient(145deg, #ffffff, #cbd5e1);
                     -webkit-background-clip: text;
                     -webkit-text-fill-color: transparent;
                     margin-bottom: 0.5rem;
@@ -39,13 +40,13 @@ const DashboardStats: React.FC<Props> = ({
                 .loading-placeholder {
                     font-size: 3rem;
                     font-weight: 700;
-                    color: rgba(255,255,255,0.3);
+                    color: rgba(255,255,255,0.2);
                     animation: pulse 1.5s infinite;
                 }
 
                 @keyframes pulse {
-                    0%, 100% { opacity: 0.5; }
-                    50% { opacity: 1; }
+                    0%, 100% { opacity: 0.4; }
+                    50% { opacity: 0.8; }
                 }
 
                 @media (max-width: 640px) {
@@ -54,43 +55,27 @@ const DashboardStats: React.FC<Props> = ({
             `}</style>
 
             <div className="cards-grid">
-                {/* Total Students */}
                 <StatCard icon="👥" title="Total Students" onClick={onManageStudents}>
                     {loading ? (
                         <div className="loading-placeholder">...</div>
                     ) : (
                         <div className="card-value">{totalStudents}</div>
                     )}
-                    <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.9rem" }}>
+                    <div style={{ color: "#94a3b8", fontSize: "0.9rem" }}>
                         enrolled
                     </div>
                 </StatCard>
 
-                {/* Total Courses */}
                 <StatCard icon="📚" title="Total Courses" onClick={onManageCourses}>
                     {loading ? (
                         <div className="loading-placeholder">...</div>
                     ) : (
                         <div className="card-value">{totalCourses}</div>
                     )}
-                    <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.9rem" }}>
+                    <div style={{ color: "#94a3b8", fontSize: "0.9rem" }}>
                         available
                     </div>
                 </StatCard>
-
-                {/*/!* Manage Students *!/*/}
-                {/*<StatCard icon="📋" title="Manage Students" onClick={onManageStudents}>*/}
-                {/*    <div style={{ fontSize: "1.2rem", marginTop: "0.5rem" }}>→</div>*/}
-                {/*    <div*/}
-                {/*        style={{*/}
-                {/*            color: "rgba(255,255,255,0.6)",*/}
-                {/*            fontSize: "0.9rem",*/}
-                {/*            marginTop: "0.5rem",*/}
-                {/*        }}*/}
-                {/*    >*/}
-                {/*        View, add, edit, delete*/}
-                {/*    </div>*/}
-                {/*</StatCard>*/}
             </div>
         </>
     );

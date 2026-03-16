@@ -1,3 +1,4 @@
+// DashboardHeader.tsx
 import React from "react";
 
 type Props = {
@@ -12,24 +13,27 @@ const DashboardHeader: React.FC<Props> = ({
     return (
         <>
             <style>{`
-        .header { text-align: center; margin-bottom: 3rem; }
+        .header {
+          text-align: center;
+          margin-bottom: 3rem;
+        }
         .greeting {
           font-size: 3.5rem;
           font-weight: 700;
-          background: linear-gradient(135deg, #fff8e7, #ffe6b0);
+          background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           margin-bottom: 0.5rem;
           letter-spacing: -0.02em;
-          text-shadow: 0 2px 15px rgba(0,0,0,0.2);
+          text-shadow: 0 4px 20px rgba(96, 165, 250, 0.3);
         }
         .subhead {
           font-size: 1.2rem;
-          color: rgba(255,255,255,0.7);
-          font-weight: 300;
+          color: #94a3b8;
+          font-weight: 400;
         }
         @media (max-width: 640px) {
-          .greeting { font-size: 2.2rem; }
+          .greeting { font-size: 2.5rem; }
         }
       `}</style>
 

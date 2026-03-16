@@ -1,3 +1,4 @@
+// LoginCard.tsx (unchanged structure, only styles are updated via the imported object)
 import React from "react";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
@@ -30,7 +31,7 @@ const LoginCard: React.FC<Props> = ({
                                     }) => {
     return (
         <div style={styles.card}>
-            <div style={styles.accentLine}/>
+
 
             <div style={styles.header}>
                 <div style={styles.brandRow}>

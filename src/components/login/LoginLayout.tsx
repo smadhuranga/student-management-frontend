@@ -1,3 +1,4 @@
+// LoginLayout.tsx (unchanged structure, only styles are updated)
 import React, {useEffect} from "react";
 import {ensureLoginKeyframes, loginStyles as styles} from "./LoginStyles";
 

@@ -1,3 +1,4 @@
+// LoginStyles.ts – modern dark theme matching dashboard
 import type React from "react";
 
 export const ensureLoginKeyframes = () => {
@@ -9,13 +10,13 @@ export const ensureLoginKeyframes = () => {
     styleSheet.textContent = `
     @keyframes float {
       0%, 100% { transform: translate(0, 0) scale(1); }
-      25% { transform: translate(14px, -18px) scale(1.08); }
-      50% { transform: translate(-10px, 22px) scale(0.95); }
-      75% { transform: translate(18px, 10px) scale(1.05); }
+      25% { transform: translate(8px, -10px) scale(1.02); }
+      50% { transform: translate(-6px, 12px) scale(0.98); }
+      75% { transform: translate(10px, 6px) scale(1.01); }
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(18px); }
+      from { opacity: 0; transform: translateY(12px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
@@ -34,15 +35,16 @@ export const ensureLoginKeyframes = () => {
     input:-webkit-autofill:focus,
     input:-webkit-autofill:active {
       -webkit-background-clip: text;
-      -webkit-text-fill-color: white;
+      -webkit-text-fill-color: #e2e8f0;
       transition: background-color 5000s ease-in-out 0s;
-      box-shadow: inset 0 0 20px 20px rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 0 20px 20px #0f172a;
     }
   `;
     document.head.appendChild(styleSheet);
 };
 
 export const loginStyles: { [key: string]: React.CSSProperties } = {
+    // Main container – dark gradient background
     container: {
         minHeight: "100vh",
         display: "flex",
@@ -51,262 +53,252 @@ export const loginStyles: { [key: string]: React.CSSProperties } = {
         position: "relative",
         overflow: "hidden",
         padding: "24px",
-        background:
-            "radial-gradient(1200px 600px at 15% 10%, rgba(124, 92, 255, 0.35), transparent 55%)," +
-            "radial-gradient(900px 600px at 85% 90%, rgba(0, 208, 255, 0.25), transparent 55%)," +
-            "linear-gradient(135deg, #060818 0%, #11153a 45%, #0b1026 100%)",
+        background: "linear-gradient(145deg, #0b1120 0%, #192132 100%)",
         fontFamily:
             '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
     },
 
+    // Subtle grid – barely visible on dark
     bgGrid: {
         position: "absolute",
         inset: 0,
         backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)",
-        backgroundSize: "56px 56px",
+            "linear-gradient(rgba(96, 165, 250, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(96, 165, 250, 0.05) 1px, transparent 1px)",
+        backgroundSize: "48px 48px",
         maskImage:
-            "radial-gradient(circle at 50% 35%, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 70%)",
+            "radial-gradient(circle at 50% 50%, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 80%)",
         WebkitMaskImage:
-            "radial-gradient(circle at 50% 35%, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 70%)",
-        opacity: 0.55,
+            "radial-gradient(circle at 50% 50%, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 80%)",
         pointerEvents: "none",
     },
 
+    // Soft glow accents (matching dashboard blobs)
     glowTopLeft: {
         position: "absolute",
-        top: "-220px",
-        left: "-240px",
-        width: "520px",
-        height: "520px",
+        top: "-200px",
+        left: "-200px",
+        width: "500px",
+        height: "500px",
         borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(132, 92, 255, 0.55), transparent 60%)",
-        filter: "blur(30px)",
-        opacity: 0.9,
+        background: "radial-gradient(circle, rgba(96, 165, 250, 0.2), transparent 70%)",
+        filter: "blur(90px)",
         pointerEvents: "none",
     },
 
     glowBottomRight: {
         position: "absolute",
-        bottom: "-260px",
-        right: "-260px",
-        width: "620px",
-        height: "620px",
+        bottom: "-200px",
+        right: "-200px",
+        width: "500px",
+        height: "500px",
         borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(0, 220, 255, 0.35), transparent 60%)",
-        filter: "blur(34px)",
-        opacity: 0.9,
+        background: "radial-gradient(circle, rgba(167, 139, 250, 0.15), transparent 70%)",
+        filter: "blur(90px)",
         pointerEvents: "none",
     },
 
+    // Floating orbs – very subtle (like dashboard blobs)
     orb1: {
         position: "absolute",
-        top: "-10%",
-        left: "8%",
-        width: "420px",
-        height: "420px",
+        top: "5%",
+        left: "10%",
+        width: "300px",
+        height: "300px",
         borderRadius: "999px",
-        background:
-            "linear-gradient(135deg, rgba(255, 110, 196, 0.55), rgba(120, 115, 245, 0.4))",
-        filter: "blur(70px)",
-        opacity: 0.55,
-        animation: "float 22s infinite ease-in-out",
+        background: "radial-gradient(circle, rgba(96,165,250,0.1), transparent 70%)",
+        filter: "blur(90px)",
+        animation: "float 18s infinite ease-in-out",
         pointerEvents: "none",
     },
 
     orb2: {
         position: "absolute",
-        bottom: "-12%",
-        right: "6%",
-        width: "520px",
-        height: "520px",
+        bottom: "10%",
+        right: "5%",
+        width: "350px",
+        height: "350px",
         borderRadius: "999px",
-        background:
-            "linear-gradient(135deg, rgba(59, 154, 225, 0.45), rgba(151, 80, 221, 0.45))",
-        filter: "blur(80px)",
-        opacity: 0.45,
-        animation: "float 26s infinite ease-in-out reverse",
+        background: "radial-gradient(circle, rgba(167,139,250,0.08), transparent 70%)",
+        filter: "blur(90px)",
+        animation: "float 22s infinite ease-in-out reverse",
         pointerEvents: "none",
     },
 
     orb3: {
         position: "absolute",
-        top: "42%",
-        left: "48%",
-        width: "320px",
-        height: "320px",
+        top: "40%",
+        left: "60%",
+        width: "250px",
+        height: "250px",
         borderRadius: "999px",
-        background:
-            "linear-gradient(135deg, rgba(240, 147, 251, 0.38), rgba(245, 87, 108, 0.32))",
-        filter: "blur(65px)",
-        opacity: 0.38,
-        animation: "float 18s infinite ease-in-out",
+        background: "radial-gradient(circle, rgba(244,114,182,0.06), transparent 70%)",
+        filter: "blur(90px)",
+        animation: "float 16s infinite ease-in-out",
         pointerEvents: "none",
     },
 
+    // Card – glass panel with blur
     card: {
         width: "100%",
         maxWidth: "440px",
-        background:
-            "linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06))",
-        border: "1px solid rgba(255,255,255,0.16)",
-        borderRadius: "28px",
-        padding: "30px 28px",
-        boxShadow:
-            "0 22px 60px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.15)",
-        backdropFilter: "blur(18px)",
-        WebkitBackdropFilter: "blur(18px)",
+        background: "rgba(17, 25, 40, 0.6)",
+        backdropFilter: "blur(16px) saturate(180%)",
+        WebkitBackdropFilter: "blur(16px) saturate(180%)",
+        borderRadius: "48px",
+        padding: "32px 32px",
+        boxShadow: "0 30px 60px -15px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255,255,255,0.05)",
+        border: "1px solid rgba(255, 255, 255, 0.08)",
         position: "relative",
         zIndex: 5,
-        overflow: "hidden",
-        animation: "fadeIn 0.6s ease-out",
+        animation: "fadeIn 0.4s ease-out",
+        color: "#fff",
     },
 
+    // Accent line – gradient (from dashboard header)
     accentLine: {
         position: "absolute",
         top: 0,
         left: 0,
         right: 0,
         height: "4px",
-        background:
-            "linear-gradient(90deg, rgba(124,92,255,1), rgba(0,220,255,1), rgba(255,110,196,1))",
-        opacity: 0.95,
+        background: "linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6)",
+        borderTopLeftRadius: "48px",
+        borderTopRightRadius: "48px",
     },
 
     header: {
         textAlign: "left",
-        marginBottom: "22px",
+        marginBottom: "24px",
     },
 
     brandRow: {
         display: "flex",
         alignItems: "center",
         gap: "10px",
-        marginBottom: "14px",
+        marginBottom: "16px",
     },
 
     brandDot: {
         width: "10px",
         height: "10px",
         borderRadius: "50%",
-        background: "linear-gradient(135deg, #7c5cff, #00dcff)",
-        boxShadow: "0 0 0 6px rgba(124,92,255,0.15)",
+        background: "linear-gradient(135deg, #60a5fa, #a78bfa)",
+        boxShadow: "0 0 0 4px rgba(96, 165, 250, 0.3)",
     },
 
     brandText: {
-        fontSize: "0.95rem",
-        color: "rgba(255,255,255,0.8)",
+        fontSize: "0.9rem",
+        color: "#94a3b8",
         fontWeight: 600,
         letterSpacing: "0.02em",
+        textTransform: "uppercase",
     },
 
     title: {
-        fontSize: "2.1rem",
-        fontWeight: 750,
-        color: "white",
+        fontSize: "2rem",
+        fontWeight: 700,
+        color: "#fff",
         margin: 0,
         letterSpacing: "-0.02em",
-        textShadow: "0 10px 22px rgba(0,0,0,0.35)",
     },
 
     subtitle: {
         fontSize: "1rem",
-        color: "rgba(255,255,255,0.75)",
-        marginTop: "10px",
+        color: "#94a3b8",
+        marginTop: "8px",
         marginBottom: 0,
         lineHeight: 1.5,
     },
 
     errorMessage: {
-        background: "rgba(255, 72, 92, 0.18)",
-        border: "1px solid rgba(255, 72, 92, 0.28)",
-        borderRadius: "14px",
+        background: "rgba(239, 68, 68, 0.1)",
+        border: "1px solid rgba(239, 68, 68, 0.3)",
+        borderRadius: "16px",
         padding: "12px 14px",
-        marginBottom: "18px",
-        color: "rgba(255,255,255,0.95)",
+        marginBottom: "20px",
+        color: "#f87171",
         fontSize: "0.95rem",
         textAlign: "center",
-        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.12)",
     },
 
     inputGroup: {
-        marginBottom: "16px",
+        marginBottom: "18px",
     },
 
     label: {
         display: "block",
         fontSize: "0.9rem",
         fontWeight: 600,
-        color: "rgba(255,255,255,0.9)",
-        marginBottom: "8px",
-        marginLeft: "6px",
+        color: "#e2e8f0",
+        marginBottom: "6px",
+        marginLeft: "4px",
     },
 
     inputShell: {
         display: "flex",
         alignItems: "center",
         gap: "10px",
-        background:
-            "linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06))",
-        border: "1px solid rgba(255,255,255,0.16)",
-        borderRadius: "16px",
-        padding: "10px 12px",
-        boxShadow: "0 10px 24px rgba(0,0,0,0.18)",
+        background: "rgba(255, 255, 255, 0.03)",
+        border: "1px solid rgba(255, 255, 255, 0.1)",
+        borderRadius: "40px",
+        padding: "8px 16px",
+        transition: "border-color 0.2s, box-shadow 0.2s",
+        boxShadow: "0 10px 25px -8px rgba(0, 0, 0, 0.4)",
     },
 
     leadingIcon: {
-        fontSize: "1.1rem",
-        opacity: 0.85,
-        color: "white",
-        width: "26px",
+        fontSize: "1.2rem",
+        color: "#94a3b8",
+        width: "24px",
         display: "flex",
         justifyContent: "center",
     },
 
     input: {
         flex: 1,
-        padding: "12px 4px",
+        padding: "10px 4px",
         backgroundColor: "transparent",
         border: "none",
         outline: "none",
-        color: "white",
+        color: "#fff",
         fontSize: "1rem",
-        fontWeight: 500,
+        fontWeight: 400,
         width: "100%",
+
     },
 
     eyeButton: {
-        background: "rgba(255,255,255,0.06)",
-        border: "1px solid rgba(255,255,255,0.14)",
+        background: "transparent",
+        border: "none",
         borderRadius: "12px",
         cursor: "pointer",
-        padding: "8px 10px",
-        color: "white",
+        padding: "8px 8px",
+        color: "#94a3b8",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        opacity: 0.9,
+        transition: "background 0.2s",
     },
 
     button: {
         width: "100%",
-        marginTop: "10px",
+        marginTop: "16px",
         padding: "14px 16px",
-        borderRadius: "16px",
-        border: "1px solid rgba(255,255,255,0.16)",
-        background:
-            "linear-gradient(135deg, rgba(124,92,255,1) 0%, rgba(0,220,255,0.95) 55%, rgba(255,110,196,0.95) 100%)",
-        color: "white",
+        borderRadius: "999px",
+        border: "none",
+        background: "linear-gradient(135deg, #475569 0%, #1e293b 100%)",
+        color: "#fff",
         fontSize: "1.05rem",
-        fontWeight: 750,
+        fontWeight: 600,
         cursor: "pointer",
-        boxShadow: "0 16px 30px rgba(0,0,0,0.35)",
+        boxShadow: "0 10px 25px -8px rgba(0, 0, 0, 0.4)",
         position: "relative",
         overflow: "hidden",
+        transition: "opacity 0.2s",
     },
 
     buttonDisabled: {
-        opacity: 0.7,
+        opacity: 0.5,
         cursor: "not-allowed",
         boxShadow: "none",
     },
@@ -315,11 +307,10 @@ export const loginStyles: { [key: string]: React.CSSProperties } = {
         position: "absolute",
         inset: 0,
         background:
-            "linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent)",
+            "linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)",
         width: "40%",
         transform: "translateX(-120%) skewX(-15deg)",
         animation: "shimmer 2.2s infinite",
-        opacity: 0.6,
         pointerEvents: "none",
     },
 
@@ -333,25 +324,25 @@ export const loginStyles: { [key: string]: React.CSSProperties } = {
         width: "18px",
         height: "18px",
         borderRadius: "999px",
-        border: "2px solid rgba(255,255,255,0.55)",
-        borderTopColor: "rgba(255,255,255,0.95)",
-        animation: "spin 0.9s linear infinite",
+        border: "2px solid rgba(255,255,255,0.3)",
+        borderTopColor: "#fff",
+        animation: "spin 0.8s linear infinite",
         display: "inline-block",
     },
 
     footer: {
-        marginTop: "16px",
+        marginTop: "20px",
         textAlign: "center",
         fontSize: "0.9rem",
-        color: "rgba(255,255,255,0.75)",
+        color: "#94a3b8",
     },
 
     footerText: {
-        fontWeight: 700,
-        color: "rgba(255,255,255,0.9)",
+        fontWeight: 600,
+        color: "#e2e8f0",
     },
 
     footerMuted: {
-        color: "rgba(255,255,255,0.7)",
+        color: "#64748b",
     },
 };

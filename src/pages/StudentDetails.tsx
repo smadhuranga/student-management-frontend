@@ -45,61 +45,107 @@ const StudentDetails: React.FC = () => {
     return (
         <>
             <style>{`
-        .sdPage{
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap');
+
+        .sdPage {
           min-height: 100vh;
           padding: 24px 18px;
-          background:
-            radial-gradient(1200px 700px at 20% -10%, rgba(99,102,241,.22), transparent 60%),
-            radial-gradient(900px 600px at 90% 10%, rgba(37,99,235,.18), transparent 55%),
-            #070b16;
+          background: linear-gradient(145deg, #0b1120 0%, #192132 100%);
+          position: relative;
+          overflow: hidden;
+          font-family: 'Inter', sans-serif;
         }
 
-        .sdContainer{
+        .sdPage::before {
+          content: '';
+          position: absolute;
+          width: 500px;
+          height: 500px;
+          background: rgba(96, 165, 250, 0.15);
+          border-radius: 50%;
+          filter: blur(90px);
+          top: -200px;
+          left: -200px;
+          animation: float 25s infinite alternate ease-in-out;
+          z-index: 0;
+        }
+
+        .sdPage::after {
+          content: '';
+          position: absolute;
+          width: 600px;
+          height: 600px;
+          background: rgba(167, 139, 250, 0.1);
+          border-radius: 50%;
+          filter: blur(90px);
+          bottom: -300px;
+          right: -200px;
+          animation: float 30s infinite alternate ease-in-out;
+          z-index: 0;
+        }
+
+        @keyframes float {
+          0% { transform: translate(0, 0) scale(1); }
+          100% { transform: translate(40px, -40px) scale(1.1); }
+        }
+
+        .sdContainer {
           max-width: 1100px;
           margin: 0 auto;
           display: grid;
           gap: 18px;
+          position: relative;
+          z-index: 10;
         }
 
-        .sdCard{
-          background: linear-gradient(180deg, rgba(17,24,39,.72), rgba(15,23,42,.55));
-          border: 1px solid rgba(255,255,255,.12);
-          border-radius: 18px;
-          padding: 18px;
-          box-shadow: 0 20px 60px rgba(0,0,0,.35);
-          color: rgba(255,255,255,.92);
+        .sdCard {
+          background: rgba(17, 25, 40, 0.6);
+          backdrop-filter: blur(16px) saturate(180%);
+          -webkit-backdrop-filter: blur(16px) saturate(180%);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 48px;
+          padding: 24px;
+          box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255,255,255,0.05);
+          color: #fff;
         }
 
-        .sdTitle{
+        .sdTitle {
           margin: 0 0 8px 0;
+          font-family: 'Poppins', sans-serif;
           font-size: 24px;
           font-weight: 700;
+          background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          letter-spacing: -0.02em;
         }
 
-        .sdGrid{
-          display:grid;
+        .sdGrid {
+          display: grid;
           grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
           gap: 12px;
           margin-top: 14px;
         }
 
-        .sdItem{
-          border: 1px solid rgba(255,255,255,.08);
-          background: rgba(255,255,255,.04);
-          border-radius: 14px;
-          padding: 12px;
+        .sdItem {
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          background: rgba(255, 255, 255, 0.03);
+          border-radius: 24px;
+          padding: 16px;
         }
 
-        .sdLabel{
-          color: rgba(255,255,255,.62);
+        .sdLabel {
+          color: #94a3b8;
           font-size: 12px;
           margin-bottom: 4px;
           text-transform: uppercase;
+          font-weight: 600;
         }
 
-        .sdValue{
+        .sdValue {
           font-size: 15px;
           font-weight: 600;
+          color: #fff;
         }
       `}</style>
 
