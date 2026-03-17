@@ -7,11 +7,9 @@ type Props = {
     onEdit: (course: Course) => void;
     onDeleteClick: (id: number, courseName: string) => void;
     onManageEnrollments: (course: Course) => void;
-    enrollmentCounts: Record<number, number>;
+    onSort: (col: string) => void;
+    sortIndicator: (col: string) => string;
 };
-
-type SortKey = "id" | "courseName" | "courseCode" | "description" | "students";
-type SortDir = "asc" | "desc";
 
 const CoursesTableCard: React.FC<Props> = ({
                                                courses,
@@ -19,90 +17,28 @@ const CoursesTableCard: React.FC<Props> = ({
                                                onEdit,
                                                onDeleteClick,
                                                onManageEnrollments,
-                                               enrollmentCounts,
+                                               onSort,
+                                               sortIndicator,
                                            }) => {
-    // Default sort: ID descending (newest first)
-    const [sortKey, setSortKey] = useState<SortKey>("id");
-    const [sortDir, setSortDir] = useState<SortDir>("desc");
     const [pageSize, setPageSize] = useState<number>(10);
     const [page, setPage] = useState<number>(1);
 
-    const toggleSort = (key: SortKey) => {
-        setPage(1);
-        setSortKey((prevKey) => {
-            if (prevKey === key) {
-                setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-                return prevKey;
-            }
-            setSortDir("asc");
-            return key;
-        });
-    };
-
-    const sortIndicator = (key: SortKey) => {
-        if (sortKey !== key) return "";
-        return sortDir === "asc" ? " ▲" : " ▼";
-    };
-
-    const sortedCourses = useMemo(() => {
-        const arr = [...courses];
-        const dir = sortDir === "asc" ? 1 : -1;
-
-        arr.sort((a, b) => {
-            if (sortKey === "id") {
-                const av = a.id ?? Number.POSITIVE_INFINITY;
-                const bv = b.id ?? Number.POSITIVE_INFINITY;
-                return (av - bv) * dir;
-            }
-
-            if (sortKey === "courseName") {
-                const av = (a.courseName ?? "").toLowerCase();
-                const bv = (b.courseName ?? "").toLowerCase();
-                return av.localeCompare(bv) * dir;
-            }
-
-            if (sortKey === "courseCode") {
-                const av = (a.courseCode ?? "").toLowerCase();
-                const bv = (b.courseCode ?? "").toLowerCase();
-                return av.localeCompare(bv) * dir;
-            }
-
-            if (sortKey === "description") {
-                const av = (a.description ?? "").toLowerCase();
-                const bv = (b.description ?? "").toLowerCase();
-                return av.localeCompare(bv) * dir;
-            }
-
-            if (sortKey === "students") {
-                const av = a.id ? enrollmentCounts[a.id] ?? 0 : 0;
-                const bv = b.id ? enrollmentCounts[b.id] ?? 0 : 0;
-                return (av - bv) * dir;
-            }
-
-            return 0;
-        });
-
-        return arr;
-    }, [courses, sortKey, sortDir, enrollmentCounts]);
-
-    const totalItems = sortedCourses.length;
+    const totalItems = courses.length;
     const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
     const safePage = Math.min(Math.max(page, 1), totalPages);
 
     const paginatedCourses = useMemo(() => {
         const start = (safePage - 1) * pageSize;
         const end = start + pageSize;
-        return sortedCourses.slice(start, end);
-    }, [sortedCourses, safePage, pageSize]);
+        return courses.slice(start, end);
+    }, [courses, safePage, pageSize]);
 
     const pageNumbers = useMemo(() => {
         const max = 5;
         const half = Math.floor(max / 2);
-
         let start = Math.max(1, safePage - half);
         const end = Math.min(totalPages, start + max - 1);
         start = Math.max(1, end - max + 1);
-
         const nums: number[] = [];
         for (let i = start; i <= end; i++) nums.push(i);
         return nums;
@@ -396,7 +332,7 @@ const CoursesTableCard: React.FC<Props> = ({
                     </div>
 
                     <div className="controls">
-                        <span className="chip">{sortedCourses.length} total</span>
+                        <span className="chip">{totalItems} total</span>
 
                         <span className="chip" title="Rows per page">
                             Rows:
@@ -430,27 +366,27 @@ const CoursesTableCard: React.FC<Props> = ({
                         <thead>
                         <tr>
                             <th>
-                                <button type="button" className="sortBtn" onClick={() => toggleSort("id")}>
+                                <button type="button" className="sortBtn" onClick={() => onSort("id")}>
                                     ID{sortIndicator("id")}
                                 </button>
                             </th>
                             <th>
-                                <button type="button" className="sortBtn" onClick={() => toggleSort("courseName")}>
+                                <button type="button" className="sortBtn" onClick={() => onSort("courseName")}>
                                     Name{sortIndicator("courseName")}
                                 </button>
                             </th>
                             <th>
-                                <button type="button" className="sortBtn" onClick={() => toggleSort("courseCode")}>
+                                <button type="button" className="sortBtn" onClick={() => onSort("courseCode")}>
                                     Course Code{sortIndicator("courseCode")}
                                 </button>
                             </th>
                             <th>
-                                <button type="button" className="sortBtn" onClick={() => toggleSort("description")}>
+                                <button type="button" className="sortBtn" onClick={() => onSort("description")}>
                                     Description{sortIndicator("description")}
                                 </button>
                             </th>
                             <th>
-                                <button type="button" className="sortBtn" onClick={() => toggleSort("students")}>
+                                <button type="button" className="sortBtn" onClick={() => onSort("students")}>
                                     Students{sortIndicator("students")}
                                 </button>
                             </th>
@@ -465,7 +401,7 @@ const CoursesTableCard: React.FC<Props> = ({
                                     Loading…
                                 </td>
                             </tr>
-                        ) : sortedCourses.length === 0 ? (
+                        ) : courses.length === 0 ? (
                             <tr>
                                 <td colSpan={6} className="empty">
                                     No courses yet.
@@ -485,7 +421,7 @@ const CoursesTableCard: React.FC<Props> = ({
                                         {c.description ?? "-"}
                                     </td>
                                     <td className="muted">
-                                        {c.id ? enrollmentCounts[c.id] ?? 0 : 0}
+                                        {c.studentCount ?? 0}
                                     </td>
                                     <td>
                                         <div className="actionsCell">
@@ -516,7 +452,7 @@ const CoursesTableCard: React.FC<Props> = ({
 
                 <div className="footer">
                     <div className="range">
-                        {sortedCourses.length === 0 ? (
+                        {totalItems === 0 ? (
                             "Showing 0 of 0"
                         ) : (
                             <>

@@ -1,6 +1,7 @@
 export interface Course {
     id?: number;
     courseName: string;
-    courseCode: string;
+    courseCode?: string;
     description?: string;
+    studentCount?: number;
 }
