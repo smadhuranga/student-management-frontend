@@ -232,7 +232,6 @@ const StudentsTableCard: React.FC<Props> = ({
           background: rgba(255, 255, 255, 0.03);
           border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 999px;
-          color: #e2e8f0;
           font-size: 0.95rem;
           outline: none;
           cursor: pointer;

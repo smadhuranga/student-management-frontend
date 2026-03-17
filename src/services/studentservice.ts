@@ -1,8 +1,11 @@
 import api from "../api/api";
 import type { Student } from "../types/Student";
 
-export const getStudents = async (): Promise<Student[]> => {
-    const response = await api.get("/student");
+export const getStudents = async (sortBy?: string, sortOrder?: string): Promise<Student[]> => {
+    const params = new URLSearchParams();
+    if (sortBy) params.append('sortBy', sortBy);
+    if (sortOrder) params.append('sortOrder', sortOrder);
+    const response = await api.get('/student', { params });
     return response.data;
 };
 

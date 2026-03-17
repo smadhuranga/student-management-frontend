@@ -373,6 +373,7 @@ const StudentFormCard: React.FC<Props> = ({
                         <input
                             type="date"
                             name="dateOfBirth"
+                            placeholder= "DateOfBirth"
                             value={formData.dateOfBirth}
                             onChange={onChange}
                             required

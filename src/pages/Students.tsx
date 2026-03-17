@@ -48,7 +48,7 @@ const Students: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
 
-    // Default sort: ID descending (newest first)
+    // Sorting state – now used for backend calls
     const [sortColumn, setSortColumn] = useState<string>("id");
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
@@ -56,20 +56,20 @@ const Students: React.FC = () => {
     const [validationErrors, setValidationErrors] = useState<string[]>([]);
     const [errorMessages, setErrorMessages] = useState<string[]>([]);
 
+    // Load courses once
     useEffect(() => {
-        (async () => {
-            await loadCourses();
-            await loadStudentsWithCourses();
-        })();
+        loadCourses();
     }, []);
 
+    // Load students whenever sort changes
+    useEffect(() => {
+        loadStudentsWithCourses();
+    }, [sortColumn, sortDirection]);
+
+    // Reset to first page when search changes
     useEffect(() => {
         setCurrentPage(1);
     }, [search]);
-
-    const handleCourseIdsChange = (selectedIds: number[]) => {
-        setFormData(prev => ({ ...prev, courseIds: selectedIds }));
-    };
 
     const loadCourses = async () => {
         try {
@@ -83,20 +83,20 @@ const Students: React.FC = () => {
     const loadStudentsWithCourses = async () => {
         setLoading(true);
         try {
-            const data = await getStudents();
+            // Fetch sorted students from backend
+            const data = await getStudents(sortColumn, sortDirection);
             const baseStudents: Student[] = Array.isArray(data) ? data : [];
 
+            // Enrich with courses
             const enriched = await Promise.all(
                 baseStudents.map(async (s) => {
                     if (!s.id) return s;
-
                     try {
                         const enrolledCourses = await getCoursesByStudent(s.id);
                         const simpleCourses = (enrolledCourses || []).map((c) => ({
                             id: c.id!,
                             name: c.courseName,
                         }));
-
                         return {
                             ...s,
                             courses: simpleCourses,
@@ -108,7 +108,6 @@ const Students: React.FC = () => {
                     }
                 })
             );
-
             setStudents(enriched);
         } catch (error) {
             console.error("Error loading students", error);
@@ -118,9 +117,12 @@ const Students: React.FC = () => {
         }
     };
 
+    const handleCourseIdsChange = (selectedIds: number[]) => {
+        setFormData(prev => ({ ...prev, courseIds: selectedIds }));
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
-        // Clear all validation errors when user types
         setValidationErrors([]);
         setErrorMessages([]);
     };
@@ -243,14 +245,12 @@ const Students: React.FC = () => {
     const handleEdit = (student: Student) => {
         const formattedDOB = formatDateOnly(student.dateOfBirth);
         const formattedEnrollment = formatDateOnly(student.enrollmentDate);
-
         setFormData({
             ...student,
             dateOfBirth: formattedDOB,
             enrollmentDate: formattedEnrollment,
             courseIds: student.courseIds ?? student.courses?.map((c) => c.id) ?? [],
         });
-
         setEditingId(student.id || null);
         setValidationErrors([]);
         setErrorMessages([]);
@@ -300,53 +300,18 @@ const Students: React.FC = () => {
         setDeleteModal({ show: false, studentId: null, studentName: "" });
     };
 
-    const filteredStudents = Array.isArray(students)
-        ? students.filter((student) =>
-            `${student.firstName} ${student.lastName} ${student.email}`
-                .toLowerCase()
-                .includes(search.toLowerCase())
-        )
-        : [];
+    // Filter students locally (search)
+    const filteredStudents = students.filter((student) =>
+        `${student.firstName} ${student.lastName} ${student.email}`
+            .toLowerCase()
+            .includes(search.toLowerCase())
+    );
 
-    const sortedStudents = [...filteredStudents].sort((a, b) => {
-        let aValue: string | number;
-        let bValue: string | number;
-
-        switch (sortColumn) {
-            case "id":
-                aValue = a.id ?? 0;
-                bValue = b.id ?? 0;
-                break;
-            case "name":
-                aValue = `${a.firstName} ${a.lastName}`.toLowerCase();
-                bValue = `${b.firstName} ${b.lastName}`.toLowerCase();
-                break;
-            case "email":
-                aValue = a.email?.toLowerCase() ?? "";
-                bValue = b.email?.toLowerCase() ?? "";
-                break;
-            case "dateOfBirth":
-                aValue = a.dateOfBirth ?? "";
-                bValue = b.dateOfBirth ?? "";
-                break;
-            case "enrollmentDate":
-                aValue = a.enrollmentDate ?? "";
-                bValue = b.enrollmentDate ?? "";
-                break;
-            default:
-                aValue = "";
-                bValue = "";
-        }
-
-        if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
-        if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
-        return 0;
-    });
-
+    // Pagination (local)
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = sortedStudents.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(sortedStudents.length / itemsPerPage);
+    const currentItems = filteredStudents.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
 
     const goToPage = (page: number) => {
         if (page >= 1 && page <= totalPages) setCurrentPage(page);
@@ -364,7 +329,7 @@ const Students: React.FC = () => {
             setSortColumn(column);
             setSortDirection("asc");
         }
-        setCurrentPage(1);
+        // Reload triggered by useEffect
     };
 
     const getSortIndicator = (column: string) => {
